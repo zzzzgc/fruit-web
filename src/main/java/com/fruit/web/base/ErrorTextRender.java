@@ -2,7 +2,6 @@ package com.fruit.web.base;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import com.jfinal.render.Render;
@@ -22,20 +21,21 @@ public class ErrorTextRender extends Render {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void render() {
-		try {
-			response.setStatus(getErrorCode(), URLEncoder.encode(errorText, "utf-8"));// 针对部分前端ajax框架（axios），错误消息设置到响应体里，页面上是获取不到的（jquery可以），需要使用该方式
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+		String encodeText = "";
 		PrintWriter writer = null;
 		try {
+			encodeText = URLEncoder.encode(errorText, "utf-8");
+			response.setStatus(getErrorCode(), encodeText);// 针对部分前端ajax框架（axios），错误消息设置到响应体里，页面上是获取不到的（jquery可以），需要使用该方式
+//			response.sendError(getErrorCode(), encodeText);// 和上面的不同，这里会返回html格式，而上面仅会返回错误文本
+
 			response.setHeader("Pragma", "no-cache");
 	        response.setHeader("Cache-Control", "no-cache");
 	        response.setDateHeader("Expires", 0);
-	        
+			response.addHeader("Error-Text", encodeText);
+
 			response.setContentType(contentType);
 	        writer = response.getWriter();
-	        writer.write(errorText);
+	        writer.write(encodeText);
 	        writer.flush();
 		} catch (IOException e) {
 			throw new RenderException(e);

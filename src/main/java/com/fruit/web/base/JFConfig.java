@@ -1,8 +1,6 @@
 package com.fruit.web.base;
 
-import com.fruit.web.controller.BannerController;
-import com.fruit.web.controller.IndexController;
-import com.fruit.web.controller.ProductController;
+import com.fruit.web.controller.*;
 import com.fruit.web.model._MappingKit;
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
@@ -38,9 +36,9 @@ public class JFConfig extends JFinalConfig {
 		me.add("/", IndexController.class);
 		me.add("/product", ProductController.class);
 		me.add("/banner", BannerController.class);
-		AutoBindRoutes routeBind = new AutoBindRoutes();
-		routeBind.autoScan(false);
-		me.add(routeBind);
+		me.add("/classify", FruitTypeController.class);
+		me.add("/cart", ProductCartController.class);
+
 	}
 	
 	public void configEngine(Engine me) {

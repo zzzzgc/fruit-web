@@ -4,6 +4,9 @@ import com.fruit.web.util.DataResult;
 import com.jfinal.core.Controller;
 
 public abstract class BaseController extends Controller{
+	public void index() {
+		renderText("测试请求");
+	}
 	/**
 	 * 返回操作状态，如果错误就全局处理，如果成功则不返回结果
 	 * @param result

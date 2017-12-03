@@ -6,7 +6,7 @@
     <filter-class>com.jfinal.core.JFinalFilter</filter-class>
     <init-param>
       <param-name>configClass</param-name>
-      <param-value>com.fruit.manage.base.JFConfig</param-value>
+      <param-value>com.fruit.web.base.JFConfig</param-value>
     </init-param>
   </filter>
   <filter-mapping>

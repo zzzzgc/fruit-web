@@ -7,6 +7,7 @@ import com.jfinal.kit.PathKit;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
 import com.jfinal.plugin.activerecord.generator.Generator;
+import com.jfinal.plugin.activerecord.generator.MetaBuilder;
 import com.jfinal.plugin.hikaricp.HikariCpPlugin;
 
 /**
@@ -48,14 +49,19 @@ public class GeneratorDemo {
 		
 		// 创建生成器
 		DataSource dataSource = getDataSource();
-		Generator gernerator = new Generator(dataSource, baseModelPackageName, baseModelOutputDir, modelPackageName, modelOutputDir);		
-//		MetaBuilder metaBuilder = new MyMetaBuilder(dataSource,"game_account", "game_8868", "game_money");
-//		gernerator.setMetaBuilder(metaBuilder);
+		Generator gernerator = new Generator(dataSource, baseModelPackageName, baseModelOutputDir, modelPackageName, modelOutputDir);
+
+		// 添加仅包含的表
+		String[] includedTables = new String[]{"a_user", "b_banner", "b_product", "b_product_img",
+				"b_product_keyword", "b_product_market", "b_product_recommend", "b_product_standard",
+				"b_product_type", "b_type", "b_type_group", "b_cart_product"};
+		MetaBuilder metaBuilder = new MyMetaBuilder(dataSource,includedTables);
+		gernerator.setMetaBuilder(metaBuilder);
 		// 设置数据库方言
 		gernerator.setDialect(new MysqlDialect());
 		// 添加不需要生成的表名
-		String tables = "old-b_classify";
-		gernerator.addExcludedTable(tables.split(","));
+//		String tables = "old-b_classify";
+//		gernerator.addExcludedTable(tables.split(","));
 		
 		// 设置是否在 Model 中生成 dao 对象
 		gernerator.setGenerateDaoInModel(true);
