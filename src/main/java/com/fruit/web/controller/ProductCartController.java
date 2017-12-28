@@ -1,12 +1,10 @@
 package com.fruit.web.controller;
 
 import com.fruit.web.base.BaseController;
-import com.fruit.web.model.*;
+import com.fruit.web.model.CartProduct;
+import com.fruit.web.model.Product;
 import com.fruit.web.util.Constant;
-import com.jfinal.kit.Kv;
 import org.apache.log4j.Logger;
-
-import java.util.ArrayList;
 
 public class ProductCartController extends BaseController {
 	private static Logger log = Logger.getLogger(ProductCartController.class);
@@ -15,7 +13,8 @@ public class ProductCartController extends BaseController {
     /**
      * 获取购物车商品，TODO 需做登录校验
 	 */
-	public void getProduct(Integer pageNum) {
+	public void getProduct() {
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}

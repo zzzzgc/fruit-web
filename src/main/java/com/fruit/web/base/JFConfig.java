@@ -1,14 +1,9 @@
 package com.fruit.web.base;
 
 import com.fruit.web.controller.*;
+import com.fruit.web.controller.login.LoginController;
 import com.fruit.web.model._MappingKit;
-import com.jfinal.config.Constants;
-import com.jfinal.config.Handlers;
-import com.jfinal.config.Interceptors;
-import com.jfinal.config.JFinalConfig;
-import com.jfinal.config.Plugins;
-import com.jfinal.config.Routes;
-import com.jfinal.ext.route.AutoBindRoutes;
+import com.jfinal.config.*;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
@@ -22,6 +17,7 @@ public class JFConfig extends JFinalConfig {
 	/**
 	 * 配置常量
 	 */
+	@Override
 	public void configConstant(Constants me) {
 		PropKit.use("setting.properties");
 		me.setDevMode(PropKit.getBoolean("devMode", false));
@@ -32,15 +28,17 @@ public class JFConfig extends JFinalConfig {
 	/**
 	 * 配置路由
 	 */
+	@Override
 	public void configRoute(Routes me) {
 		me.add("/", IndexController.class);
 		me.add("/product", ProductController.class);
 		me.add("/banner", BannerController.class);
 		me.add("/classify", FruitTypeController.class);
 		me.add("/cart", ProductCartController.class);
-
+		me.add("/login", LoginController.class);
 	}
-	
+
+	@Override
 	public void configEngine(Engine me) {
 		//me.addSharedFunction("/common/_layout.html");
 		//me.addSharedFunction("/common/_paginate.html");
@@ -49,6 +47,7 @@ public class JFConfig extends JFinalConfig {
 	/**
 	 * 配置插件
 	 */
+	@Override
 	public void configPlugin(Plugins me) {
 		// 配置数据库连接池
 		HikariCpPlugin dataSource = new HikariCpPlugin(PropKit.get("db.url"), PropKit.get("db.user"), PropKit.get("db.password"), PropKit.get("db.driver"));
@@ -67,6 +66,7 @@ public class JFConfig extends JFinalConfig {
 	/**
 	 * 配置全局拦截器
 	 */
+	@Override
 	public void configInterceptor(Interceptors me) {
 		//me.add(new LoginInterceptor());
 //		me.add(new AllowCrossDomain());
@@ -75,6 +75,7 @@ public class JFConfig extends JFinalConfig {
 	/**
 	 * 配置处理器
 	 */
+	@Override
 	public void configHandler(Handlers me) {
 //		me.add(new PageHandler());
 	}

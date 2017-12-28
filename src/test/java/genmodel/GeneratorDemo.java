@@ -54,7 +54,7 @@ public class GeneratorDemo {
 		// 添加仅包含的表
 		String[] includedTables = new String[]{"a_user", "b_banner", "b_product", "b_product_img",
 				"b_product_keyword", "b_product_market", "b_product_recommend", "b_product_standard",
-				"b_product_type", "b_type", "b_type_group", "b_cart_product"};
+				"b_product_type", "b_type", "b_type_group","a_user","a_role","a_permission"};
 		MetaBuilder metaBuilder = new MyMetaBuilder(dataSource,includedTables);
 		gernerator.setMetaBuilder(metaBuilder);
 		// 设置数据库方言

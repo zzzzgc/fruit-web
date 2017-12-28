@@ -8,6 +8,7 @@ import com.fruit.web.model.ProductStandard;
 import com.fruit.web.util.Constant;
 import com.jfinal.kit.Kv;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,8 @@ public class ProductController extends BaseController {
 	private static Logger log = Logger.getLogger(ProductController.class);
 	private static final int PAGE_SIZE = 10;
 
-	public void get(int productId) {
+	public void get() {
+		Integer productId = getParaToInt("productId");
 		Product product = Product.dao.findById(productId);
 		if(product == null) {
 			renderError(404);
@@ -29,14 +31,16 @@ public class ProductController extends BaseController {
 		renderJson(kv);
 	}
 
-	public void listBuy(Integer pageNum) {
+	public void listBuy() {
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
 		renderJson(Product.dao.listBuyNum(PAGE_SIZE, pageNum));
 	}
 
-	public void listNew(Integer pageNum) {
+	public void listNew() {
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
@@ -46,7 +50,9 @@ public class ProductController extends BaseController {
 	/**
 	 * 按照类型查找商品
 	 */
-	public void listType(int typeId, Integer pageNum) {
+	public void listType() {
+		Integer typeId = getParaToInt("typeId");
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
@@ -56,7 +62,9 @@ public class ProductController extends BaseController {
 	/**
 	 * 按照商品类型查找
 	 */
-	public void listGroupType(int groupTypeId, Integer pageNum) {
+	public void listGroupType() {
+		Integer groupTypeId = getParaToInt("groupTypeId");
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
@@ -66,7 +74,9 @@ public class ProductController extends BaseController {
 	/**
 	 * 按照推荐类型查找商品
 	 */
-	public void listRecommendType(int recommendTypeId, Integer pageNum) {
+	public void listRecommendType() {
+		Integer recommendTypeId = getParaToInt("recommendTypeId");
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
@@ -76,7 +86,9 @@ public class ProductController extends BaseController {
 	/**
 	 * 按照关键字搜索商品
 	 */
-	public void listKeyword(String keyword, Integer pageNum) {
+	public void listKeyword() {
+		String keyword = getPara("keyword");
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
@@ -85,9 +97,9 @@ public class ProductController extends BaseController {
 
 	/**
 	 * 无条件搜索商品，默认按照商品sort排序
-	 * @param pageNum
 	 */
-	public void list(Integer pageNum) {
+	public void list() {
+		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
 		}
