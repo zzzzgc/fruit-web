@@ -186,10 +186,11 @@ public class Product extends BaseProduct<Product> {
 		int start = pageSize * (pageNum - 1);
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ").append(PRODUCT_LIST_SELECT).append(",cp.buy_num,cp.remark ")
-				.append("FROM b_product p JOIN b_product_standard ps ON (p.id = ps.product_id) ")
+				.append("FROM (b_product p JOIN b_product_standard ps ON (p.id = ps.product_id))  JOIN b_cart_product cp ON cp.product_standard_id = ps.id ")
 				.append("WHERE cp.uid=? and ps.`status`=? AND p.`status`=? ")
 				.append("ORDER BY cp.update_time DESC ")
 				.append("LIMIT ?,? ");
+		System.out.println(sql);
 		return find(sql.toString(), uid, ProductStandard.STATUS_USE, Product.STATUS_USE, start, pageSize);
 	}
 }

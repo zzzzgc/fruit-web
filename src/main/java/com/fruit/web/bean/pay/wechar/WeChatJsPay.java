@@ -2,6 +2,7 @@ package com.fruit.web.bean.pay.wechar;
 
 import com.fruit.web.util.ConvertUtils;
 import com.fruit.web.util.EncryptUtils;
+import com.jfinal.kit.HashKit;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -361,9 +362,7 @@ public class WeChatJsPay {
         String key = "969f2f734243f654643ec4800c279962";
         param += "&key=" + key;
 
-        String sign = EncryptUtils.md5Hex(param.getBytes("UTF-8"));
-        System.out.println(sign);
-        System.out.println("0CB01533B8C1EF103065174F50BCA001");
+        String sign = HashKit.md5(param).toUpperCase();
         map.put("sign", sign);
 
         String xmlStr = ConvertUtils.map2SimpleXmlStr(map);
