@@ -29,7 +29,7 @@ public class LoginInterceptor implements Interceptor {
         log.info("----------cookie获取jsessionid为"+controller.getCookie("JSESSIONID")+"----------");
 
         if(uid == null) {
-            controller.redirect("/login");
+            controller.redirect("login");
             return;
         }
 
