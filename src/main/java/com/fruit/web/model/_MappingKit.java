@@ -20,6 +20,8 @@ public class _MappingKit {
 		arp.addMapping("a_role", "id", Role.class);
 		arp.addMapping("a_user", "id", User.class);
 		arp.addMapping("b_banner", "id", Banner.class);
+		arp.addMapping("b_cart_product", "id", CartProduct.class);
+		arp.addMapping("b_order", "id", Order.class);
 		arp.addMapping("b_product", "id", Product.class);
 		arp.addMapping("b_product_img", "id", ProductImg.class);
 		arp.addMapping("b_product_keyword", "id", ProductKeyword.class);
