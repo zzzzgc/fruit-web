@@ -20,7 +20,7 @@ public class Order extends BaseOrder<Order> {
 		sql.append("o.buy_remark,if(p.country='中国',false,false) `check`,o.pay_status ispay,o.sell_price,o.product_standard_name ");
 		sql.append("from b_product p,b_product_standard ps,b_order o,b_product_img pi ");
 		sql.append("where p.id=ps.product_id and p.id=o.product_id and pi.product_id=o.product_id ");
-		//sql.append("and o.product_standard_id=ps.id ");
+		sql.append("and o.product_standard_id=ps.id ");
 		sql.append("and o.buy_uid=? ");
 		sql.append("and o.`status` in (");
 		sql.append(status);
