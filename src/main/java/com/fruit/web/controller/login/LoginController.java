@@ -23,7 +23,7 @@ public class LoginController extends BaseController {
     private Logger log = Logger.getLogger(getClass());
 
     /**
-     * 登录操作 // TODO 通过getSessionAttr 设置登录信息
+     * 登录操作
      */
     public void auth() {
         Object uid = getSessionAttr(Constant.SESSION_UID);
@@ -35,17 +35,13 @@ public class LoginController extends BaseController {
         String password = StringUtils.isNotBlank(getPara("password")) ? HashKit.md5(getPara("password")) : getPara("password");
 
         if (StringUtils.isNotBlank(phone) && StringUtils.isNotBlank(password)) {
-            //User user = User.dao.getUser(phone, password);
-            //if (user != null) {
-            if (true){// 测试数据
-//                HttpSession session = getSession(false);
-//                session.setAttribute(Constant.SESSION_UID,1);
-                //设置登陆信息到session
-                setSessionAttr(Constant.SESSION_UID,1);
+            User user = User.dao.getUser(phone, password);
+            if (user != null) {
+                setSessionAttr(Constant.SESSION_UID,user.getId());
                 log.info("----------session获取jsessionid为"+getSession().getId()+"----------");
                 renderNull();
             } else {
-                renderLogin("用户名或密码有误");
+                renderErrorText("用户名或密码有误");
             }
         } else {
             renderErrorText("请填写用户名、密码");

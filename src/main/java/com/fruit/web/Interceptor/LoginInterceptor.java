@@ -1,13 +1,11 @@
 package com.fruit.web.Interceptor;
 
 import com.fruit.web.util.Constant;
+import com.google.common.collect.Sets;
 import com.jfinal.aop.Interceptor;
 import com.jfinal.aop.Invocation;
 import com.jfinal.core.Controller;
 import org.apache.log4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 登录拦截器(目前只拦截购物车控制层内容)
@@ -31,6 +29,7 @@ public class LoginInterceptor implements Interceptor {
         log.info("----------cookie获取jsessionid为"+controller.getCookie("JSESSIONID")+"----------");
 
         if(uid == null) {
+            controller.redirect("/login");
             return;
         }
 

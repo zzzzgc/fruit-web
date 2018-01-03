@@ -39,6 +39,7 @@ public class ProductCartController extends BaseController {
 	 * 添加购物车商品
 	 */
 	public void addProduct() {
+		Integer uid = getSessionAttr(Constant.SESSION_UID);
 		Integer standardId = getParaToInt("standard_id");
 		Integer buyNum = getParaToInt("buy_num", 1);
 		String remark = getPara("remark");
@@ -47,8 +48,9 @@ public class ProductCartController extends BaseController {
 			renderErrorText("参数有误");
 			return;
 		}
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
 		CartProduct.dao.addProduct(uid, standardId, buyNum, remark);
 		renderResult(true);
 	}
+
+
 }

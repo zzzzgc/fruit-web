@@ -32,6 +32,7 @@ public class JFConfig extends JFinalConfig {
 	public void configRoute(Routes me) {
 		me.add("/", IndexController.class);
 		me.add("/product", ProductController.class);
+		me.add("/order", OrderController.class);
 		me.add("/banner", BannerController.class);
 		me.add("/classify", FruitTypeController.class);
 		me.add("/cart", ProductCartController.class);
