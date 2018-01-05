@@ -109,17 +109,18 @@ public class OrderController extends BaseController {
      */
     public void getOderList(){
         String order_status=getPara("order_status");
-        if("one".equals(order_status)){
+        if("one".equals(order_status)){ // 判断代付款
             order_status="'0'";
-        }else if("two".equals(order_status)){
+        }else if("two".equals(order_status)){ //判断确认中
             order_status="'0','5'";
-        }else if("three".equals(order_status)){
+        }else if("three".equals(order_status)){ //判断待发货
             order_status="'10'";
-        }else if("four".equals(order_status)){
+        }else if("four".equals(order_status)){ //判断我的订单
             order_status="'0','5','10','20','30','40'";
         }
-
-        List<Order> orderList=Order.dao.getOrderListByStatus("1",order_status);
+        // 获取用户ID
+        Object uid=getSessionAttr(Constant.SESSION_UID);
+        List<Order> orderList=Order.dao.getOrderListByStatus(uid.toString(),order_status);
         Map<String,List<Order>> map =new HashMap<String,List<Order>>();
         for (Order order : orderList) {
             if(map.containsKey(order.getOrderId())){
