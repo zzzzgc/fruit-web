@@ -52,7 +52,7 @@ public class GeneratorDemo {
 		Generator gernerator = new Generator(dataSource, baseModelPackageName, baseModelOutputDir, modelPackageName, modelOutputDir);
 
 		// 添加仅包含的表
-		String[] includedTables = new String[]{"b_order","a_user", "b_banner", "b_product", "b_product_img",
+		String[] includedTables = new String[]{"b_order","b_order_detail","a_user", "b_banner", "b_product", "b_product_img",
 				"b_product_keyword", "b_product_market", "b_product_recommend", "b_product_standard",
 				"b_product_type", "b_type", "b_cart_product", "b_type_group","a_user"};
 		MetaBuilder metaBuilder = new MyMetaBuilder(dataSource,includedTables);

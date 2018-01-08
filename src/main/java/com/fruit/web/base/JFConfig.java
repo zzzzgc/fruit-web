@@ -8,6 +8,7 @@ import com.fruit.web.model._MappingKit;
 import com.jfinal.config.*;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.tx.TxByMethodRegex;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.jfinal.plugin.hikaricp.HikariCpPlugin;
 import com.jfinal.template.Engine;
@@ -74,6 +75,7 @@ public class JFConfig extends JFinalConfig {
 	public void configInterceptor(Interceptors me) {
 		//me.add(new LoginInterceptor());
 //		me.add(new AllowCrossDomain());
+		me.add(new TxByMethodRegex("(.*save.*|.*update.*|.*create.*)"));
 	}
 	
 	/**

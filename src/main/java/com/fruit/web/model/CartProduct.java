@@ -27,8 +27,7 @@ public class CartProduct extends BaseCartProduct<CartProduct> {
     }
 
     /**
-     * 添加购物车商品
-     *
+     * 添加购物车商品(和之前的商品数量累加),数量为整数为增加商品数量,数量为负数可以去除指定的商品数量(不会出现商品数量为负的情况)
      * @param uid
      * @param standardId
      * @param buyNum
@@ -36,31 +35,27 @@ public class CartProduct extends BaseCartProduct<CartProduct> {
      */
     public void addProduct(int uid, int standardId, int buyNum, String remark) {
         StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO b_cart_product(uid, product_standard_id, buy_num, remark, create_time, update_time) ")
+                .append("VALUES (?,?,?,?,NOW(),NOW()) ")
+                .append("ON DUPLICATE KEY UPDATE buy_num= buy_num + ?, remark=?, update_time=now()");
+        Db.update(sql.toString(), uid, standardId, buyNum, remark, buyNum, remark);
+    }
+
+
+    /**
+     * 添加或修改购物车商品(直接修改数量,不累加)
+     *
+     * @param uid
+     * @param standardId
+     * @param buyNum
+     * @param remark
+     */
+    public void saveAndUpdateProduct(int uid, int standardId, int buyNum, String remark) {
+        StringBuilder sql = new StringBuilder();
 
         sql.append("INSERT INTO b_cart_product(uid, product_standard_id, buy_num, remark, create_time, update_time) ")
                 .append("VALUES (?,?,?,?,NOW(),NOW()) ")
                 .append("ON DUPLICATE KEY UPDATE buy_num= ?, remark=?, update_time=now()");
         Db.update(sql.toString(), uid, standardId, buyNum, remark, buyNum, remark);
-    }
-
-    /**
-     * 获取用户购物车商品
-     * @return
-     */
-    public List<CartProduct> selecrCarProduct(int uid) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT\n" +
-                "\tcar.id,\n" +
-                "\tcar.uid,\n" +
-                "\tcar.product_standard_id,\n" +
-                "\tcar.buy_num,\n" +
-                "\tcar.remark,\n" +
-                "\tcar.create_time,\n" +
-                "\tcar.update_time\n" +
-                "FROM\n" +
-                "\tb_cart_product AS car\n" +
-                "WHERE\n" +
-                "\tcar.uid = ?");
-        return dao.find(sql.toString(), uid);
     }
 }

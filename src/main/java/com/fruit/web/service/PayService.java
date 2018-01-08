@@ -9,6 +9,7 @@ import org.dom4j.Element;
 import java.util.logging.Logger;
 
 /**
+ * 支付接口服务类
  * @Author: ZGC
  * @Date Created in 16:23 2017/12/25
  */
@@ -21,7 +22,7 @@ public class PayService {
     private static final String WECHAR_SEND_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 
     /**
-     * 公众号预下单请求
+     * 公众号支付预下单请求
      * @param title 订单标题
      * @param orderId 商户订单号   调用之前,需要把该支付订单号和订单信息绑定并持久化到数据库
      * @param money  支付金额

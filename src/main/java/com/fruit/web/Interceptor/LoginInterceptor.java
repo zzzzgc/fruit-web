@@ -29,7 +29,8 @@ public class LoginInterceptor implements Interceptor {
         log.info("----------cookie获取jsessionid为"+controller.getCookie("JSESSIONID")+"----------");
 
         if(uid == null) {
-            controller.redirect("login");
+            //微信前端的拦截器会拦截401并跳转到login页面的
+            controller.renderError(401,"请登录后再执行该操作");
             return;
         }
 
