@@ -3,6 +3,7 @@ package com.fruit.web.base;
 import com.fruit.web.controller.*;
 import com.fruit.web.controller.login.LoginController;
 import com.fruit.web.controller.order.OrderController;
+import com.fruit.web.controller.person.PersonController;
 import com.fruit.web.model._MappingKit;
 import com.jfinal.config.*;
 import com.jfinal.kit.PropKit;
@@ -38,6 +39,7 @@ public class JFConfig extends JFinalConfig {
 		me.add("/classify", FruitTypeController.class);
 		me.add("/cart", ProductCartController.class);
 		me.add("/login", LoginController.class);
+		me.add("/person", PersonController.class);
 	}
 
 	@Override

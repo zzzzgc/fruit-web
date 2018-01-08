@@ -64,6 +64,16 @@ public class Order extends BaseOrder<Order> {
 		return list;
 	}
 
+	public List<Order> getOrderCountList(String uid){
+		StringBuilder sql=new StringBuilder();
+		sql.append("SELECT `status`,count(`status`) count ");
+		sql.append("from b_order_detail od ");
+		sql.append("where od.buy_uid=? ");
+		sql.append("GROUP BY `status` ");
+		List<Order> orderList=find(sql.toString(),uid);
+		return orderList;
+	}
+
     /**
      * 删除订单
      *
