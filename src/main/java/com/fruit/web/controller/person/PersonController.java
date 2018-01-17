@@ -1,8 +1,8 @@
 package com.fruit.web.controller.person;
 
 import com.fruit.web.base.BaseController;
+import com.fruit.web.model.BusinessUser;
 import com.fruit.web.model.Order;
-import com.fruit.web.model.User;
 import com.fruit.web.util.Constant;
 import org.apache.log4j.Logger;
 
@@ -16,7 +16,7 @@ public class PersonController extends BaseController{
     // 进入"我的" 页面的时候进行用户信息和订单个数的统计
     public void getUserInfo(){
         Object uid=getSessionAttr(Constant.SESSION_UID);
-        User user= User.dao.findById(uid.toString());
+        BusinessUser user= BusinessUser.dao.findById(uid.toString());
         List<Order> orderList=Order.dao.getOrderCountList(uid.toString());
         Map<String,Integer> mapStatusAndCount=new HashMap<>();
         if(orderList!=null && orderList.size()>0){

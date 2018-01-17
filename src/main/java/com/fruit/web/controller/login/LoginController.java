@@ -1,22 +1,12 @@
 package com.fruit.web.controller.login;
 
 import com.fruit.web.base.BaseController;
-import com.fruit.web.model.User;
+import com.fruit.web.model.BusinessUser;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.DataResult;
-import com.jfinal.core.Controller;
 import com.jfinal.kit.HashKit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.SessionContext;
-import org.apache.shiro.session.mgt.eis.SessionDAO;
-import org.apache.shiro.subject.Subject;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpSession;
 
 public class LoginController extends BaseController {
 
@@ -35,7 +25,7 @@ public class LoginController extends BaseController {
         String password = StringUtils.isNotBlank(getPara("password")) ? HashKit.md5(getPara("password")) : getPara("password");
 
         if (StringUtils.isNotBlank(phone) && StringUtils.isNotBlank(password)) {
-            User user = User.dao.getUser(phone, password);
+            BusinessUser user = BusinessUser.dao.getUser(phone, password);
             if (user != null) {
                 setSessionAttr(Constant.SESSION_UID,user.getId());
                 log.info("----------session获取jsessionid为"+getSession().getId()+"----------");
@@ -47,6 +37,14 @@ public class LoginController extends BaseController {
             renderErrorText("请填写用户名、密码");
         }
     }
+
+    /**
+     * 注册操作
+     */
+    public void register() {
+
+    }
+
 
     /**
      * 退出登录操作
