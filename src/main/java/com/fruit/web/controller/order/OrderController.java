@@ -4,10 +4,12 @@ import com.fruit.web.base.BaseController;
 import com.fruit.web.model.Order;
 import com.fruit.web.model.OrderDetail;
 import com.fruit.web.model.Product;
+import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.ext2.kit.DateTimeKit;
 import com.jfinal.ext2.kit.RandomKit;
+import com.jfinal.plugin.activerecord.SqlPara;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -51,7 +53,9 @@ public class OrderController extends BaseController {
             order.setOrderId(orderId);
             order.setUpdateTime(new Date());
             order.setCreateTime(new Date());
-            order.save();
+            order.setBuyAddress("");
+            order.setBuyPhone("");
+
 
             for (Product product : products) {
                 //获取购物车商品id
@@ -84,8 +88,6 @@ public class OrderController extends BaseController {
                         orderDetail.setFruitType(product.getFruitType());
                         orderDetail.setOriginalPrice(original_price);
                         orderDetail.setMeasureUnit(product.getMeasureUnit());
-                        orderDetail.setBuyAddress("");
-                        orderDetail.setBuyPhone("");
                         orderDetail.setBuyUid(uid);
                         orderDetail.setBuyRemark(remark);
                         orderDetail.setUpdateTime(new Date());
@@ -94,6 +96,12 @@ public class OrderController extends BaseController {
                     }
                 }
             }
+            // 待支付金额
+            order.setPayNeedMoney(allTotalPay);
+            // 已支付金额
+            order.setPayTotalMoney(new BigDecimal(0));
+            order.save();
+
             renderText(orderId);
         } catch (Exception e) {
             renderErrorText("后台异常!!!");
@@ -113,15 +121,17 @@ public class OrderController extends BaseController {
 
         try {
             int id = getParaToInt("id");
-            int Standard_id = getParaToInt("Standard_id");
+            int Standard_id = getParaToInt("standard_id");
             int buyNum = getParaToInt("buyNum");
             String name = getPara("name");
             String standard_name = getPara("standard_name");
-            String sell_price_int = getPara("sell_price");
-            BigDecimal sell_price = new BigDecimal(sell_price_int);
+            // 单价
+            BigDecimal sell_price = new BigDecimal(getPara("sell_price"));
+            // 水果名
             String fruit_type = getPara("fruit_type");
-            String original_price_int = getPara("original_price");
-            BigDecimal original_price = new BigDecimal(original_price_int);
+            // 原价(用于参考)
+            BigDecimal original_price = new BigDecimal(getPara("original_price"));
+            // 单位
             String measure_unit = getPara("measure_unit");
 
             Order order = new Order();
@@ -131,9 +141,14 @@ public class OrderController extends BaseController {
             order.setCreateTime(new Date());
             order.setUpdateTime(new Date());
             order.setOrderId(orderId);
+            order.setBuyAddress("");
+            order.setBuyPhone("");
+            order.setPayNeedMoney(sell_price);
+            order.setPayTotalMoney(new BigDecimal(0));
             order.save();
 
             OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrderId(orderId);
             orderDetail.setProductId(id);
             orderDetail.setProductStandardId(Standard_id);
             orderDetail.setProductName(name);
@@ -144,8 +159,6 @@ public class OrderController extends BaseController {
             orderDetail.setFruitType(fruit_type);
             orderDetail.setOriginalPrice(original_price);
             orderDetail.setMeasureUnit(measure_unit);
-            orderDetail.setBuyAddress("");
-            orderDetail.setBuyPhone("");
             orderDetail.setBuyUid(uid);
             orderDetail.setBuyRemark("");
             orderDetail.setCreateTime(new Date());
@@ -164,10 +177,20 @@ public class OrderController extends BaseController {
     private String getOrderId() {
         String orderId;
         synchronized (OrderController.class) {
-            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT + "-" + RandomKit.random(100000,999999);
+            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT + "-" + RandomKit.random(100000, 999999);
             COUNT++;
         }
         return orderId;
+    }
+
+    /**
+     * 生成支付订单
+     */
+    public void createPayOrder() {
+        String orderId = getPara("orderId");
+        Order order = Order.dao.findByIdLoadColumns(orderId, "pay_total_money");
+        long money = order.getPayTotalMoney().longValue();
+        new PayService().wechatJsApiPay("嘻果商城", orderId, money);
     }
 
     //跳转页面
@@ -179,30 +202,30 @@ public class OrderController extends BaseController {
     /**
      * 获取到订单列表
      */
-    public void getOderList(){
-        String order_status=getPara("order_status");
-        if("one".equals(order_status)){ // 判断代付款
-            order_status="'0'";
-        }else if("two".equals(order_status)){ //判断确认中
-            order_status="'0','5'";
-        }else if("three".equals(order_status)){ //判断待发货
-            order_status="'10'";
-        }else if("four".equals(order_status)){ //判断我的订单
-            order_status="'0','5','10','20','30','40'";
+    public void getOderList() {
+        String order_status = getPara("order_status");
+        if ("one".equals(order_status)) { // 判断代付款
+            order_status = "'0'";
+        } else if ("two".equals(order_status)) { //判断确认中
+            order_status = "'0','5'";
+        } else if ("three".equals(order_status)) { //判断待发货
+            order_status = "'10'";
+        } else if ("four".equals(order_status)) { //判断我的订单
+            order_status = "'0','5','10','20','30','40'";
         }
         // 获取用户ID
-        Object uid=getSessionAttr(Constant.SESSION_UID);
-        List<Order> orderList=Order.dao.getOrderListByStatus(uid.toString(),order_status);
-        Map<String,List<Order>> map =new HashMap<String,List<Order>>();
+        Object uid = getSessionAttr(Constant.SESSION_UID);
+        List<Order> orderList = Order.dao.getOrderListByStatus(uid.toString(), order_status);
+        Map<String, List<Order>> map = new HashMap<String, List<Order>>();
         for (Order order : orderList) {
-            if(map.containsKey(order.getOrderId())){
-                List<Order> orders=map.get(order.getOrderId());
+            if (map.containsKey(order.getOrderId())) {
+                List<Order> orders = map.get(order.getOrderId());
                 orders.add(order);
-                map.put(order.getOrderId(),orders);
-            }else{
-                List<Order> orders=new ArrayList<Order>();
+                map.put(order.getOrderId(), orders);
+            } else {
+                List<Order> orders = new ArrayList<Order>();
                 orders.add(order);
-                map.put(order.getOrderId(),orders);
+                map.put(order.getOrderId(), orders);
             }
         }
         renderJson(map);

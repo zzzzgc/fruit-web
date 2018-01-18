@@ -49,12 +49,44 @@ public abstract class BaseOrder<M extends BaseOrder<M>> extends Model<M> impleme
 		return getInt("pay_status");
 	}
 
+	public void setPayNeedMoney(java.math.BigDecimal payNeedMoney) {
+		set("pay_need_money", payNeedMoney);
+	}
+
+	public java.math.BigDecimal getPayNeedMoney() {
+		return get("pay_need_money");
+	}
+
+	public void setPayTotalMoney(java.math.BigDecimal payTotalMoney) {
+		set("pay_total_money", payTotalMoney);
+	}
+
+	public java.math.BigDecimal getPayTotalMoney() {
+		return get("pay_total_money");
+	}
+
 	public void setPayCallback(java.lang.String payCallback) {
 		set("pay_callback", payCallback);
 	}
 
 	public java.lang.String getPayCallback() {
 		return getStr("pay_callback");
+	}
+
+	public void setBuyPhone(java.lang.String buyPhone) {
+		set("buy_phone", buyPhone);
+	}
+
+	public java.lang.String getBuyPhone() {
+		return getStr("buy_phone");
+	}
+
+	public void setBuyAddress(java.lang.String buyAddress) {
+		set("buy_address", buyAddress);
+	}
+
+	public java.lang.String getBuyAddress() {
+		return getStr("buy_address");
 	}
 
 	public void setPayTime(java.util.Date payTime) {

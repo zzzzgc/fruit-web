@@ -137,22 +137,6 @@ public abstract class BaseOrderDetail<M extends BaseOrderDetail<M>> extends Mode
 		return getStr("buy_remark");
 	}
 
-	public void setBuyPhone(java.lang.String buyPhone) {
-		set("buy_phone", buyPhone);
-	}
-
-	public java.lang.String getBuyPhone() {
-		return getStr("buy_phone");
-	}
-
-	public void setBuyAddress(java.lang.String buyAddress) {
-		set("buy_address", buyAddress);
-	}
-
-	public java.lang.String getBuyAddress() {
-		return getStr("buy_address");
-	}
-
 	public void setCancelReason(java.lang.String cancelReason) {
 		set("cancel_reason", cancelReason);
 	}
