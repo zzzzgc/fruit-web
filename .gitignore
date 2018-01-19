@@ -1,0 +1,5 @@
+setting.properties
+
+# Editor directories and files
+.idea
+*.iml

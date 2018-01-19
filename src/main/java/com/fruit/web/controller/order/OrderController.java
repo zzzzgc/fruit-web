@@ -222,19 +222,19 @@ public class OrderController extends BaseController {
         try {
             String orderId = getPara("orderId");
             StringBuffer sb = new StringBuffer("SELECT\n" +
-                    "\tp.country,\n" +
-                    "\tp.img,\n" +
-                    "\to.product_name,\n" +
+                    "\to.num,\n" +
                     "\to.product_standard_name,\n" +
                     "\to.product_standard_id,\n" +
+                    "\to.product_name,\n" +
+                    "\tp.img,\n" +
                     "\to.sell_price,\n" +
-                    "\to.num\n" +
+                    "\tp.country,\n" +
+                    "\to.measure_unit\n" +
                     "FROM\n" +
-                    "\tb_order_detail AS o,\n" +
-                    "\tb_product AS p\n" +
+                    "\tb_order_detail AS o\n" +
+                    "LEFT JOIN b_product AS p ON o.product_id = p.id\n" +
                     "WHERE\n" +
-                    "\to.product_id = p.id\n" +
-                    "AND o.order_id = ?");
+                    "\to.order_id = ?");
             List<OrderDetail> orderDetails = OrderDetail.dao.find(sb.toString(), orderId);
             renderJson(orderDetails);
         } catch (Exception e) {
