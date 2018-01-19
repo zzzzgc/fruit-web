@@ -9,6 +9,7 @@ import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.ext2.kit.DateTimeKit;
 import com.jfinal.ext2.kit.RandomKit;
+import com.jfinal.kit.HashKit;
 import com.jfinal.plugin.activerecord.SqlPara;
 import org.apache.log4j.Logger;
 
@@ -190,7 +191,7 @@ public class OrderController extends BaseController {
     }
 
     /**
-     * 生成支付订单
+     * 生成预支付订单
      */
     public void createPayOrder() {
         String orderId = getPara("orderId");
@@ -206,8 +207,33 @@ public class OrderController extends BaseController {
             long money = orders.get(0).getPayNeedMoney().longValue();
             String prepay_id = new PayService().wechatJsApiPay("嘻果商城", orderId, money);
             if (prepay_id != null) {
+                // TODO 待获取微信 应用id appId
+                String appId = "";
+                String timeStamp = System.currentTimeMillis()+"";
+                String  nonceStr= RandomKit.randomStr();
+                String  signType= "MD5";
+                HashMap<String, String> paramMap = new HashMap<>(6);
+                paramMap.put("appId",appId);
+                paramMap.put("prepay_id",prepay_id);
+                paramMap.put("timeStamp",timeStamp);
+                paramMap.put("nonceStr",nonceStr);
+                paramMap.put("signType",signType);
+
+                // 转格式
+                String paramStr = ConvertUtils.map2KeyValueString(paramMap);
+                // MD5加密
+                String paySign = HashKit.md5(paramStr).toUpperCase();
+                // TODO 待测试
+
+                HashMap<String, String> map = new HashMap<>(6);
+                map.put("appId",appId);
+                map.put("prepay_id",prepay_id);
+                map.put("timeStamp",timeStamp);
+                map.put("nonceStr",nonceStr);
+                map.put("paySign",paySign);
+                map.put("signType",signType);
                 // TODO 未完成
-                renderText(prepay_id);
+                renderJson(map);
             }
         }
 
