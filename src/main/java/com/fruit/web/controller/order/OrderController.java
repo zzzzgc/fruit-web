@@ -36,73 +36,77 @@ public class OrderController extends BaseController {
         try {
             //获取前端传过来的商品规格id
             Integer[] standardIds = getParaValuesToInt("standardIds");
-            Integer uid = getSessionAttr(Constant.SESSION_UID);
-            //临时限定100页数的购物车内容的获取
-            List<Product> products = Product.dao.listCartProduct(uid, 100, 1);
+            if (standardIds != null && standardIds.length > 0) {
+                Integer uid = getSessionAttr(Constant.SESSION_UID);
+                //临时限定100页数的购物车内容的获取
+                List<Product> products = Product.dao.listCartProduct(uid, 100, 1);
 
-            //订单总金额
-            BigDecimal allTotalPay = new BigDecimal(0.00d);
-            //生成唯一有序id
-            String orderId = getOrderId();
+                //订单总金额
+                BigDecimal allTotalPay = new BigDecimal(0.00d);
+                //生成唯一有序id
+                String orderId = getOrderId();
 
-            //创建订单,初始订单的支付状态为0-未支付
-            Order order = new Order();
-            order.setPayStatus(0);
-            order.setStatus(0);
-            order.setUId(uid);
-            order.setOrderId(orderId);
-            order.setUpdateTime(new Date());
-            order.setCreateTime(new Date());
-            order.setBuyAddress("");
-            order.setBuyPhone("");
+                //创建订单,初始订单的支付状态为0-未支付
+                Order order = new Order();
+                order.setPayStatus(0);
+                order.setStatus(0);
+                order.setUId(uid);
+                order.setOrderId(orderId);
+                order.setUpdateTime(new Date());
+                order.setCreateTime(new Date());
+                order.setBuyAddress("");
+                order.setBuyPhone("");
 
 
-            for (Product product : products) {
-                //获取购物车商品id
-                int standardId = Integer.parseInt(product.get("standard_id").toString());
-                for (Integer id : standardIds) {
-                    if (id.equals(standardId)) {
-                        // TODO 删除购物车中的商品
+                for (Product product : products) {
+                    //获取购物车商品id
+                    int standardId = Integer.parseInt(product.get("standard_id").toString());
+                    for (Integer id : standardIds) {
+                        if (id.equals(standardId)) {
+                            // TODO 删除购物车中的商品
 
-                        //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
-                        int buy_num = Integer.parseInt(product.get("buy_num").toString());
-                        BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price"));
-                        BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price"));
-                        String remark = product.get("remark").toString();
-                        String standard_name = product.get("standard_name").toString();
-                        //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
-                        BigDecimal totalPay = new BigDecimal(buy_num).multiply(sell_price);
-                        //添加到总支付金额中
-                        allTotalPay = allTotalPay.add(totalPay);
+                            //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
+                            int buy_num = Integer.parseInt(product.get("buy_num").toString());
+                            BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price"));
+                            BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price"));
+                            String remark = product.get("remark").toString();
+                            String standard_name = product.get("standard_name").toString();
+                            //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
+                            BigDecimal totalPay = new BigDecimal(buy_num).multiply(sell_price);
+                            //添加到总支付金额中
+                            allTotalPay = allTotalPay.add(totalPay);
 
-                        //创建子订单,初始订单状态为0-未支付(已下单),手机和收获地址暂时为空
-                        OrderDetail orderDetail = new OrderDetail();
-                        orderDetail.setOrderId(orderId);
-                        orderDetail.setProductId(product.getId());
-                        orderDetail.setProductStandardId(id);
-                        orderDetail.setProductName(product.getName());
-                        orderDetail.setProductStandardName(standard_name);
-                        orderDetail.setNum(buy_num);
-                        orderDetail.setSellPrice(sell_price);
-                        orderDetail.setTotalPay(totalPay);
-                        orderDetail.setFruitType(product.getFruitType());
-                        orderDetail.setOriginalPrice(original_price);
-                        orderDetail.setMeasureUnit(product.getMeasureUnit());
-                        orderDetail.setBuyUid(uid);
-                        orderDetail.setBuyRemark(remark);
-                        orderDetail.setUpdateTime(new Date());
-                        orderDetail.setCreateTime(new Date());
-                        orderDetail.save();
+                            //创建子订单,初始订单状态为0-未支付(已下单),手机和收获地址暂时为空
+                            OrderDetail orderDetail = new OrderDetail();
+                            orderDetail.setOrderId(orderId);
+                            orderDetail.setProductId(product.getId());
+                            orderDetail.setProductStandardId(id);
+                            orderDetail.setProductName(product.getName());
+                            orderDetail.setProductStandardName(standard_name);
+                            orderDetail.setNum(buy_num);
+                            orderDetail.setSellPrice(sell_price);
+                            orderDetail.setTotalPay(totalPay);
+                            orderDetail.setFruitType(product.getFruitType());
+                            orderDetail.setOriginalPrice(original_price);
+                            orderDetail.setMeasureUnit(product.getMeasureUnit());
+                            orderDetail.setBuyUid(uid);
+                            orderDetail.setBuyRemark(remark);
+                            orderDetail.setUpdateTime(new Date());
+                            orderDetail.setCreateTime(new Date());
+                            orderDetail.save();
+                        }
                     }
                 }
-            }
-            // 待支付金额
-            order.setPayNeedMoney(allTotalPay);
-            // 已支付金额
-            order.setPayTotalMoney(new BigDecimal(0));
-            order.save();
+                // 待支付金额
+                order.setPayNeedMoney(allTotalPay);
+                // 已支付金额
+                order.setPayTotalMoney(new BigDecimal(0));
+                order.save();
 
-            renderText(orderId);
+                renderText(orderId);
+            } else {
+                renderErrorText("没有选定商品下单\t请正确下单后重试");
+            }
         } catch (Exception e) {
             renderErrorText("后台异常!!!");
             e.printStackTrace();
@@ -120,53 +124,55 @@ public class OrderController extends BaseController {
         Integer uid = getSessionAttr(Constant.SESSION_UID);
 
         try {
-            int id = getParaToInt("id");
             int Standard_id = getParaToInt("standard_id");
-            int buyNum = getParaToInt("buyNum");
-            String name = getPara("name");
-            String standard_name = getPara("standard_name");
-            // 单价
-            BigDecimal sell_price = new BigDecimal(getPara("sell_price"));
-            // 水果名
-            String fruit_type = getPara("fruit_type");
-            // 原价(用于参考)
-            BigDecimal original_price = new BigDecimal(getPara("original_price"));
-            // 单位
-            String measure_unit = getPara("measure_unit");
+            if (Standard_id != 0 ) {
+                int id = getParaToInt("id");
+                int buyNum = getParaToInt("buyNum");
+                String name = getPara("name");
+                String standard_name = getPara("standard_name");
+                // 单价
+                BigDecimal sell_price = new BigDecimal(getPara("sell_price"));
+                // 水果名
+                String fruit_type = getPara("fruit_type");
+                // 原价(用于参考)
+                BigDecimal original_price = new BigDecimal(getPara("original_price"));
+                // 单位
+                String measure_unit = getPara("measure_unit");
 
-            Order order = new Order();
-            order.setPayStatus(0);
-            order.setStatus(0);
-            order.setUId(uid);
-            order.setCreateTime(new Date());
-            order.setUpdateTime(new Date());
-            order.setOrderId(orderId);
-            order.setBuyAddress("");
-            order.setBuyPhone("");
-            order.setPayNeedMoney(sell_price);
-            order.setPayTotalMoney(new BigDecimal(0));
-            order.save();
+                Order order = new Order();
+                order.setPayStatus(0);
+                order.setStatus(0);
+                order.setUId(uid);
+                order.setCreateTime(new Date());
+                order.setUpdateTime(new Date());
+                order.setOrderId(orderId);
+                order.setBuyAddress("");
+                order.setBuyPhone("");
+                order.setPayNeedMoney(sell_price);
+                order.setPayTotalMoney(new BigDecimal(0));
+                order.save();
 
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrderId(orderId);
-            orderDetail.setProductId(id);
-            orderDetail.setProductStandardId(Standard_id);
-            orderDetail.setProductName(name);
-            orderDetail.setProductStandardName(standard_name);
-            orderDetail.setNum(buyNum);
-            orderDetail.setSellPrice(sell_price);
-            orderDetail.setTotalPay(sell_price);
-            orderDetail.setFruitType(fruit_type);
-            orderDetail.setOriginalPrice(original_price);
-            orderDetail.setMeasureUnit(measure_unit);
-            orderDetail.setBuyUid(uid);
-            orderDetail.setBuyRemark("");
-            orderDetail.setCreateTime(new Date());
-            orderDetail.setUpdateTime(new Date());
-            orderDetail.save();
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrderId(orderId);
+                orderDetail.setProductId(id);
+                orderDetail.setProductStandardId(Standard_id);
+                orderDetail.setProductName(name);
+                orderDetail.setProductStandardName(standard_name);
+                orderDetail.setNum(buyNum);
+                orderDetail.setSellPrice(sell_price);
+                orderDetail.setTotalPay(sell_price);
+                orderDetail.setFruitType(fruit_type);
+                orderDetail.setOriginalPrice(original_price);
+                orderDetail.setMeasureUnit(measure_unit);
+                orderDetail.setBuyUid(uid);
+                orderDetail.setBuyRemark("");
+                orderDetail.setCreateTime(new Date());
+                orderDetail.setUpdateTime(new Date());
+                orderDetail.save();
 
-            // 返回订单号
-            renderText(orderId);
+                // 返回订单号
+                renderText(orderId);
+            }
         } catch (Exception e) {
             renderErrorText("后台异常!!!");
             e.printStackTrace();
@@ -188,9 +194,53 @@ public class OrderController extends BaseController {
      */
     public void createPayOrder() {
         String orderId = getPara("orderId");
-        Order order = Order.dao.findByIdLoadColumns(orderId, "pay_total_money");
-        long money = order.getPayTotalMoney().longValue();
-        new PayService().wechatJsApiPay("嘻果商城", orderId, money);
+        StringBuffer sb = new StringBuffer().append("SELECT\n" +
+                "\tb_order.pay_need_money\n" +
+                "FROM\n" +
+                "\tb_order\n" +
+                "WHERE\n" +
+                "\tb_order.order_id = ?");
+        List<Order> orders = Order.dao.find(sb.toString(), orderId);
+
+        if (orders != null && orders.size() > 0) {
+            long money = orders.get(0).getPayNeedMoney().longValue();
+            String prepay_id = new PayService().wechatJsApiPay("嘻果商城", orderId, money);
+            if (prepay_id != null) {
+                // TODO 未完成
+                renderText(prepay_id);
+            }
+        }
+
+        // TODO 临时跳过
+        renderText("内容");
+    }
+
+    /**
+     * 获取订单上商品
+     */
+    public void getOrderProducts() {
+        try {
+            String orderId = getPara("orderId");
+            StringBuffer sb = new StringBuffer("SELECT\n" +
+                    "\tp.country,\n" +
+                    "\tp.img,\n" +
+                    "\to.product_name,\n" +
+                    "\to.product_standard_name,\n" +
+                    "\to.product_standard_id,\n" +
+                    "\to.sell_price,\n" +
+                    "\to.num\n" +
+                    "FROM\n" +
+                    "\tb_order_detail AS o,\n" +
+                    "\tb_product AS p\n" +
+                    "WHERE\n" +
+                    "\to.product_id = p.id\n" +
+                    "AND o.order_id = ?");
+            List<OrderDetail> orderDetails = OrderDetail.dao.find(sb.toString(), orderId);
+            renderJson(orderDetails);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
     }
 
     //跳转页面
