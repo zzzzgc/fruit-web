@@ -22,6 +22,7 @@ import java.util.*;
  * @Date Created in 15:52 2018/1/3
  */
 public class OrderController extends BaseController {
+
     private static Logger log = Logger.getLogger(OrderController.class);
 
     private static final int PAGE_SIZE = 10;

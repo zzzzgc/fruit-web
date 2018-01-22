@@ -10,10 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author  LZZ
+ */
 public class PersonController extends BaseController{
     private static Logger logger= Logger.getLogger(PersonController.class);
 
-    // 进入"我的" 页面的时候进行用户信息和订单个数的统计
+    /**
+     * 进入"我的" 页面的时候进行用户信息和订单个数的统计
+     */
     public void getUserInfo(){
         Object uid=getSessionAttr(Constant.SESSION_UID);
         BusinessUser user= BusinessUser.dao.findById(uid.toString());
