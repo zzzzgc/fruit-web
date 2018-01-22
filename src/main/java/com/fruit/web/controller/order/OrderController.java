@@ -11,6 +11,7 @@ import com.jfinal.ext2.kit.DateTimeKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
 import com.jfinal.plugin.activerecord.SqlPara;
+import com.jfinal.render.JsonRender;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -59,6 +60,9 @@ public class OrderController extends BaseController {
                 order.setBuyAddress("");
                 order.setBuyPhone("");
 
+                Map<String, Object> responseMap = new HashMap<>();
+                List<Object> productsArray = new ArrayList<>();
+
 
                 for (Product product : products) {
                     //获取购物车商品id
@@ -69,8 +73,8 @@ public class OrderController extends BaseController {
 
                             //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
                             int buy_num = Integer.parseInt(product.get("buy_num").toString());
-                            BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price"));
-                            BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price"));
+                            BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
+                            BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price")).setScale(2, BigDecimal.ROUND_UP);
                             String remark = product.get("remark").toString();
                             String standard_name = product.get("standard_name").toString();
                             //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
@@ -96,16 +100,34 @@ public class OrderController extends BaseController {
                             orderDetail.setUpdateTime(new Date());
                             orderDetail.setCreateTime(new Date());
                             orderDetail.save();
+
+                            // 添加到返回商品集合中
+                            Map<String, String> productMap = new HashMap<>();
+                            productMap.put("img", product.getImg());
+                            productMap.put("id", id + "");
+                            productMap.put("country", product.getCountry());
+                            productMap.put("product_name", product.getName());
+                            productMap.put("measure_unit", product.getMeasureUnit());
+                            productMap.put("product_standard_name", standard_name);
+                            productMap.put("sell_price", sell_price.toString());
+                            productMap.put("num", buy_num + "");
+                            productsArray.add(productMap);
                         }
                     }
                 }
+
+                allTotalPay = allTotalPay.setScale(2, BigDecimal.ROUND_UP);
                 // 待支付金额
                 order.setPayNeedMoney(allTotalPay);
                 // 已支付金额
                 order.setPayTotalMoney(new BigDecimal(0));
                 order.save();
 
-                renderText(orderId);
+                responseMap.put("totalPrice", allTotalPay);
+                responseMap.put("products", productsArray);
+
+                System.out.println("内容:" + responseMap);
+                renderJson(responseMap);
             } else {
                 renderErrorText("没有选定商品下单\t请正确下单后重试");
             }
@@ -127,7 +149,7 @@ public class OrderController extends BaseController {
 
         try {
             int Standard_id = getParaToInt("standard_id");
-            if (Standard_id != 0 ) {
+            if (Standard_id != 0) {
                 int id = getParaToInt("id");
                 int buyNum = getParaToInt("buyNum");
                 String name = getPara("name");
@@ -210,15 +232,15 @@ public class OrderController extends BaseController {
             if (prepay_id != null) {
                 // TODO 待获取微信 应用id appId
                 String appId = "";
-                String timeStamp = System.currentTimeMillis()+"";
-                String  nonceStr= RandomKit.randomStr();
-                String  signType= "MD5";
+                String timeStamp = System.currentTimeMillis() + "";
+                String nonceStr = RandomKit.randomStr();
+                String signType = "MD5";
                 HashMap<String, String> paramMap = new HashMap<>(6);
-                paramMap.put("appId",appId);
-                paramMap.put("prepay_id",prepay_id);
-                paramMap.put("timeStamp",timeStamp);
-                paramMap.put("nonceStr",nonceStr);
-                paramMap.put("signType",signType);
+                paramMap.put("appId", appId);
+                paramMap.put("prepay_id", prepay_id);
+                paramMap.put("timeStamp", timeStamp);
+                paramMap.put("nonceStr", nonceStr);
+                paramMap.put("signType", signType);
 
                 // 转格式
                 String paramStr = ConvertUtils.map2KeyValueString(paramMap);
@@ -227,12 +249,12 @@ public class OrderController extends BaseController {
                 // TODO 待测试
 
                 HashMap<String, String> map = new HashMap<>(6);
-                map.put("appId",appId);
-                map.put("prepay_id",prepay_id);
-                map.put("timeStamp",timeStamp);
-                map.put("nonceStr",nonceStr);
-                map.put("paySign",paySign);
-                map.put("signType",signType);
+                map.put("appId", appId);
+                map.put("prepay_id", prepay_id);
+                map.put("timeStamp", timeStamp);
+                map.put("nonceStr", nonceStr);
+                map.put("paySign", paySign);
+                map.put("signType", signType);
                 // TODO 未完成
                 renderJson(map);
             }
