@@ -39,6 +39,7 @@ public class CartProduct extends BaseCartProduct<CartProduct> {
                 .append("VALUES (?,?,?,?,NOW(),NOW()) ")
                 .append("ON DUPLICATE KEY UPDATE buy_num= buy_num + ?, remark=?, update_time=now()");
         Db.update(sql.toString(), uid, standardId, buyNum, remark, buyNum, remark);
+
     }
 
 

@@ -1,5 +1,8 @@
 package com.fruit.web.controller.order;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.Order;
 import com.fruit.web.model.OrderDetail;
@@ -8,10 +11,13 @@ import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.ext2.kit.DateTimeKit;
+import com.jfinal.ext2.kit.JsonExtKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
+import com.jfinal.kit.JsonKit;
 import com.jfinal.plugin.activerecord.SqlPara;
 import com.jfinal.render.JsonRender;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -272,7 +278,7 @@ public class OrderController extends BaseController {
                 BigDecimal sellPrice = orderDetail.getSellPrice();
                 price = price.add(sellPrice);
             }
-            HashMap<String, Object> responseMap = new HashMap<>();
+            HashMap<String, Object> responseMap = new HashMap<>(2);
             responseMap.put("products",orderDetails);
             responseMap.put("totalPrice",price);
 
@@ -282,6 +288,7 @@ public class OrderController extends BaseController {
         } finally {
         }
     }
+
 
     //跳转页面
 

@@ -1,5 +1,8 @@
 package com.fruit.web.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.CartProduct;
@@ -74,10 +77,23 @@ public class ProductCartController extends BaseController {
 	}
 
 	/**
-	 * TODO 同步本地购物车内容到持久化购物车
+	 * 批量添加商品,目前用于添加本地购物车到数据库
 	 */
-	public void synchronizationProduct(){
-
+	public void saveGoodsData() {
+		Integer uid = getSessionAttr(Constant.SESSION_UID);
+		String cartProductsByJson = getPara("cartProducts");
+		System.out.println("cartProductsByJson"+cartProductsByJson);
+		JSONArray arrayJson = JSON.parseArray(cartProductsByJson);
+		for (int i = 0; i < arrayJson.size(); i++) {
+			JSONObject products = arrayJson.getJSONObject(i);
+			String remark = products.getString("remark");
+			Integer buy_num = products.getInteger("buy_num");
+			Integer standard_id = products.getInteger("standard_id");
+			System.out.println("remark:"+remark+",buy_num:"+buy_num+",standard_id:"+standard_id);
+			//如果有重复的商品,直接累加到数据库
+			CartProduct.dao.addProduct(uid, standard_id, buy_num, remark);
+		}
+		renderResult(true);
 	}
 
 
