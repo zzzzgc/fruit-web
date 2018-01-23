@@ -71,8 +71,6 @@ public class OrderController extends BaseController {
                     int standardId = Integer.parseInt(product.get("standard_id").toString());
                     for (Integer id : standardIds) {
                         if (id.equals(standardId)) {
-                            // TODO 删除购物车中的商品
-
                             //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
                             int buy_num = Integer.parseInt(product.get("buy_num").toString());
                             BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
@@ -241,12 +239,11 @@ public class OrderController extends BaseController {
                 map.put("nonceStr", nonceStr);
                 map.put("paySign", paySign);
                 map.put("signType", signType);
-                // TODO 未完成
                 renderJson(map);
             }
         }
 
-        // TODO 临时跳过
+        // 临时跳过
         renderText("内容");
     }
 
