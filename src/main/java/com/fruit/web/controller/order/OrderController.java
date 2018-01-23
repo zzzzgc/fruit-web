@@ -1,32 +1,24 @@
 package com.fruit.web.controller.order;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.Order;
 import com.fruit.web.model.OrderDetail;
+import com.fruit.web.model.Param;
 import com.fruit.web.model.Product;
 import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.ext2.kit.DateTimeKit;
-import com.jfinal.ext2.kit.JsonExtKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
-import com.jfinal.kit.JsonKit;
-import com.jfinal.plugin.activerecord.SqlPara;
-import com.jfinal.render.JsonRender;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.util.*;
 
 /**
- * @Author: ZGC and CCZ
- * @Date Created in 15:52 2018/1/3
+ * Author ZGC and CCZ
+ * Date Created in 15:52 2018/1/3
  */
 public class OrderController extends BaseController {
 
@@ -214,11 +206,11 @@ public class OrderController extends BaseController {
             long money = orders.get(0).getPayNeedMoney().longValue();
             String prepay_id = new PayService().wechatJsApiPay("嘻果商城", orderId, money);
             if (prepay_id != null) {
-                // TODO 待获取微信 应用id appId
-                String appId = "";
+                Param paramDao = Param.dao;
+                String appId = paramDao.getParam("weChar_appId");
                 String timeStamp = System.currentTimeMillis() + "";
                 String nonceStr = RandomKit.randomStr();
-                String signType = "MD5";
+                String signType = paramDao.getParam("weChar_tradeType");
                 HashMap<String, String> paramMap = new HashMap<>(6);
                 paramMap.put("appId", appId);
                 paramMap.put("prepay_id", prepay_id);
@@ -230,7 +222,6 @@ public class OrderController extends BaseController {
                 String paramStr = ConvertUtils.map2KeyValueString(paramMap);
                 // MD5加密
                 String paySign = HashKit.md5(paramStr).toUpperCase();
-                // TODO 待测试
 
                 HashMap<String, String> map = new HashMap<>(6);
                 map.put("appId", appId);
@@ -298,13 +289,17 @@ public class OrderController extends BaseController {
      */
     public void getOderList() {
         String order_status = getPara("order_status");
-        if ("one".equals(order_status)) { // 判断代付款
+        if ("one".equals(order_status)) {
+            // 判断代付款
             order_status = "'0'";
-        } else if ("two".equals(order_status)) { //判断确认中
+        } else if ("two".equals(order_status)) {
+            //判断确认中
             order_status = "'0','5'";
-        } else if ("three".equals(order_status)) { //判断待发货
+        } else if ("three".equals(order_status)) {
+            //判断待发货
             order_status = "'10'";
-        } else if ("four".equals(order_status)) { //判断我的订单
+        } else if ("four".equals(order_status)) {
+            //判断我的订单
             order_status = "'0','5','10','20','30','40'";
         }
         // 获取用户ID
@@ -323,10 +318,6 @@ public class OrderController extends BaseController {
             }
         }
         renderJson(map);
-    }
-
-    public void getOrderListDetail() {
-        String orderId = getPara("orderId");
     }
 
 

@@ -26,16 +26,14 @@ public class PayService {
      * 公众号支付预下单请求
      * @param title 订单标题
      * @param orderId 商户订单号   调用之前,需要把该支付订单号和订单信息绑定并持久化到数据库
-     * @param money  支付金额
+     * @param money  支付金额(单位 分)
      * @return 预支付交易会话标识,用于前端拉起微信支付的标示
      */
     public String wechatJsApiPay(String title, String orderId, long money) {
         try {
             //装载必要参数
-            WeChatJsPay sendPo = new WeChatJsPay();
-            sendPo.setBody(title);
-            sendPo.setTotalFee(money + "");
-            sendPo.setOutTradeNo(orderId);
+            WeChatJsPay sendPo = new WeChatJsPay(title,orderId,money+"");
+
             String sendXmlStr = sendPo.getSendStr();
 
             /**
