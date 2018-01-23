@@ -4,7 +4,9 @@ import com.fruit.web.controller.*;
 import com.fruit.web.controller.login.LoginController;
 import com.fruit.web.controller.order.OrderController;
 import com.fruit.web.controller.person.AuthIdentityController;
+import com.fruit.web.controller.person.BusinessInfoController;
 import com.fruit.web.controller.person.PersonController;
+import com.fruit.web.model.BusinessInfo;
 import com.fruit.web.model._MappingKit;
 import com.jfinal.config.*;
 import com.jfinal.kit.PropKit;
@@ -43,6 +45,7 @@ public class JFConfig extends JFinalConfig {
 		me.add("/login", LoginController.class);
 		me.add("/person", PersonController.class);
 		me.add("authIdentity", AuthIdentityController.class);
+		me.add("/businessInfo", BusinessInfoController.class);
 	}
 
 	@Override
