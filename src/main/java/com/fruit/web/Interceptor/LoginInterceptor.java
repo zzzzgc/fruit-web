@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 /**
  * 登录拦截器(目前只拦截购物车控制层内容)
- * TODO 通过getSessionAttr 获取登录信息,获取不到.值为空
+ *
  * @Author: ZGC
  * @Date Created in 16:49 2017/12/29
  */
@@ -24,13 +24,13 @@ public class LoginInterceptor implements Interceptor {
         Integer uid = controller.getSessionAttr(Constant.SESSION_UID);// 获取的session的id 和 登录时session的id不一样
         System.out.println(uid);
 
-        log.info("----------session获取jsessionid为"+controller.getSession().getId()+"----------");
+        log.info("----------session获取jsessionid为" + controller.getSession().getId() + "----------");
 
-        log.info("----------cookie获取jsessionid为"+controller.getCookie("JSESSIONID")+"----------");
+        log.info("----------cookie获取jsessionid为" + controller.getCookie("JSESSIONID") + "----------");
 
-        if(uid == null) {
+        if (uid == null) {
             //微信前端的拦截器会拦截401并跳转到login页面的
-            controller.renderError(401,"请登录后再执行该操作");
+            controller.renderError(401, "请登录后再执行该操作");
             return;
         }
 

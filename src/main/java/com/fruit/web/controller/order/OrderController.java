@@ -1,5 +1,8 @@
 package com.fruit.web.controller.order;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.Order;
 import com.fruit.web.model.OrderDetail;
@@ -8,10 +11,13 @@ import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.ext2.kit.DateTimeKit;
+import com.jfinal.ext2.kit.JsonExtKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
+import com.jfinal.kit.JsonKit;
 import com.jfinal.plugin.activerecord.SqlPara;
 import com.jfinal.render.JsonRender;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -60,17 +66,11 @@ public class OrderController extends BaseController {
                 order.setBuyAddress("");
                 order.setBuyPhone("");
 
-                Map<String, Object> responseMap = new HashMap<>();
-                List<Object> productsArray = new ArrayList<>();
-
-
                 for (Product product : products) {
                     //获取购物车商品id
                     int standardId = Integer.parseInt(product.get("standard_id").toString());
                     for (Integer id : standardIds) {
                         if (id.equals(standardId)) {
-                            // TODO 删除购物车中的商品
-
                             //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
                             int buy_num = Integer.parseInt(product.get("buy_num").toString());
                             BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
@@ -100,18 +100,6 @@ public class OrderController extends BaseController {
                             orderDetail.setUpdateTime(new Date());
                             orderDetail.setCreateTime(new Date());
                             orderDetail.save();
-
-                            // 添加到返回商品集合中
-                            Map<String, String> productMap = new HashMap<>();
-                            productMap.put("img", product.getImg());
-                            productMap.put("id", id + "");
-                            productMap.put("country", product.getCountry());
-                            productMap.put("product_name", product.getName());
-                            productMap.put("measure_unit", product.getMeasureUnit());
-                            productMap.put("product_standard_name", standard_name);
-                            productMap.put("sell_price", sell_price.toString());
-                            productMap.put("num", buy_num + "");
-                            productsArray.add(productMap);
                         }
                     }
                 }
@@ -123,11 +111,7 @@ public class OrderController extends BaseController {
                 order.setPayTotalMoney(new BigDecimal(0));
                 order.save();
 
-                responseMap.put("totalPrice", allTotalPay);
-                responseMap.put("products", productsArray);
-
-                System.out.println("内容:" + responseMap);
-                renderJson(responseMap);
+                renderJson(orderId);
             } else {
                 renderErrorText("没有选定商品下单\t请正确下单后重试");
             }
@@ -255,12 +239,11 @@ public class OrderController extends BaseController {
                 map.put("nonceStr", nonceStr);
                 map.put("paySign", paySign);
                 map.put("signType", signType);
-                // TODO 未完成
                 renderJson(map);
             }
         }
 
-        // TODO 临时跳过
+        // 临时跳过
         renderText("内容");
     }
 
@@ -285,12 +268,24 @@ public class OrderController extends BaseController {
                     "WHERE\n" +
                     "\to.order_id = ?");
             List<OrderDetail> orderDetails = OrderDetail.dao.find(sb.toString(), orderId);
-            renderJson(orderDetails);
+
+            BigDecimal price = new BigDecimal(0.00);
+
+            for (OrderDetail orderDetail : orderDetails) {
+                BigDecimal sellPrice = orderDetail.getSellPrice();
+                price = price.add(sellPrice);
+            }
+            HashMap<String, Object> responseMap = new HashMap<>(2);
+            responseMap.put("products",orderDetails);
+            responseMap.put("totalPrice",price);
+
+            renderJson(responseMap);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
         }
     }
+
 
     //跳转页面
 
