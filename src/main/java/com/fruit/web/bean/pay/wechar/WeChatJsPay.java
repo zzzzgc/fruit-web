@@ -1,17 +1,18 @@
 package com.fruit.web.bean.pay.wechar;
 
+import com.fruit.web.model.Param;
 import com.fruit.web.util.ConvertUtils;
-import com.fruit.web.util.EncryptUtils;
 import com.jfinal.kit.HashKit;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * 微信公众号支付请求实体
  *
- * @Author: ZGC
- * @Date Created in 15:08 2017/12/25
+ * @author ZGC
+ * @date Created in 15:08 2017/12/25
  */
 public class WeChatJsPay {
     /**
@@ -102,8 +103,12 @@ public class WeChatJsPay {
      * 场景信息
      */
     private String sceneInfo;
-    private Object object;
 
+    public WeChatJsPay(String body, String outTradeNo, String totalFee) {
+        this.body = body;
+        this.outTradeNo = outTradeNo;
+        this.totalFee = totalFee;
+    }
 
     public String getAppid() {
         return appid;
@@ -315,23 +320,19 @@ public class WeChatJsPay {
      * @return
      */
     public String getSendStr() throws Exception {
-        //TODO 参数移动到数据库持久化或者添加配置文件来管理
-        this.appid = "wx5c9b21aa561cbbc7";
-        this.mchId = "9854354";
-        this.nonceStr = "1add1a30ac87aa2db72f57a2375d8fec";
-//        this.nonceStr = UUID.randomUUID().toString();
+        Param paramDao = Param.dao;
+        this.appid = paramDao.getParam("weChar_appId");
+        this.mchId = paramDao.getParam("weChar_mchId");
+        this.nonceStr = UUID.randomUUID().toString();
         this.sign = null;
         //this.body            =null;
         //this.totalFee        =null;
         //this.outTradeNo      =null;
         this.body = "JSAPI支付测试";
-        this.totalFee = "1";
-        this.outTradeNo = "1415659990";
-//        this.outTradeNo = UUID.randomUUID().toString();
+        this.spbillCreateIp = paramDao.getParam("weChar_spbillCreateIp");
+        this.notifyUrl = paramDao.getParam("weChar_JsApiPay_notifyUrl");
+        this.tradeType = paramDao.getParam("weChar_tradeType");
 
-        this.spbillCreateIp = "14.23.150.211";
-        this.notifyUrl = "http://wxpay.wxutil.com/pub_v2/pay/notify.v2.php";
-        this.tradeType = "JSAPI";
 
 //        this.goodsTag        =null;
 //        this.productId       =null;
@@ -343,7 +344,7 @@ public class WeChatJsPay {
 //        this.attach          =null;
 //        this.detail          =null;
 //        this.deviceInfo      =null;
-//        this.signType        =null;
+        this.signType = paramDao.getParam("weChar_signType");
 //        this.timeStart       =null;
 //        this.timeExpire      =null;
 
@@ -367,11 +368,6 @@ public class WeChatJsPay {
 
         String xmlStr = ConvertUtils.map2SimpleXmlStr(map);
         return xmlStr;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        System.out.println(new WeChatJsPay().getSendStr());
     }
 
     public void getStr(Class zlass) {

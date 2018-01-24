@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.CartProduct;
+import com.fruit.web.model.Param;
 import com.fruit.web.model.Product;
 import com.fruit.web.util.Constant;
 import com.jfinal.aop.Before;
@@ -20,10 +21,20 @@ public class ProductCartController extends BaseController {
 	private static Logger log = Logger.getLogger(ProductCartController.class);
 	private static final int PAGE_SIZE = 50;
 
-    /**
-     * 获取购物车商品
+	/**
+	 * 获取购物车商品
 	 */
 	public void getProduct() {
+		Param param = new Param();
+		param.createParam(2,"支付类型-公众号支付","JSAPI","wechar_tradeType","默认商家商城微信支付类型");
+//		param.setParam("wechar_appId","1");
+//		param.setParam("wechar_mchId","2");
+//		param.setParam("wechar_spbillCreateIp","");
+//		param.setParam("wechar_JsApiPay_notifyUrl","");
+//		param.setParam("wechar_key","");
+//		param.setParam("wechar_signType","");
+
+		param.createParam("后台参数","测试参数","这是即将要被获取的内容","test","全都是要被");
 		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
