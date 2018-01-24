@@ -2,17 +2,84 @@ package com.fruit.web.controller.person;
 
 import com.fruit.web.base.BaseController;
 import com.fruit.web.controller.ProductController;
+import com.fruit.web.model.BusinessAuth;
 import com.jfinal.upload.UploadFile;
 import org.apache.log4j.Logger;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AuthIdentityController extends BaseController {
     private static Logger log = Logger.getLogger(ProductController.class);
+
+    public void addAuthInfoImg(String imgL){
+        getResponse().addHeader("Access-Control-Allow-Origin","*");
+      /*  String test=getPara();
+        String ba=getPara("business_license");
+        String s= getAttr("imgL");
+        String [] sa =getParaValues("imgL");
+        HttpServletRequest http= getRequest();
+        BusinessAuth a=getBean(BusinessAuth.class,"",true);
+        // 获取到BusinessAuth对象
+        BusinessAuth businessAuth=getModel(BusinessAuth.class,"",true);*/
+        // 获取到图片
+        List<UploadFile> listUploadFile=getFiles();
+        Map<Integer,String> mapImg=new HashMap<Integer,String>();
+        String projectPath=getRequest().getSession().getServletContext().getRealPath("images");
+        for (int i = 0; i < listUploadFile.size(); i++) {
+            UploadFile uploadFile =listUploadFile.get(i);
+            String originalFileName =uploadFile.getOriginalFileName();
+            String fileName=uploadFile.getFileName();
+            File file =uploadFile.getFile();
+            if(!new File(projectPath).exists() && new File(projectPath).isDirectory()){ //判断文件夹是否存在
+                new File(projectPath).mkdir();
+            }
+            String fullPath=projectPath+"\\"+UUID.randomUUID().toString()+"."+fileName.split("\\.")[1];
+            // 服务器存放图片的路径
+            File t=new File(fullPath);
+            mapImg.put(i,fullPath);
+            FileInputStream ins= null;
+            FileOutputStream out= null;
+            try {
+                ins = new FileInputStream(file);
+                out = new FileOutputStream(t);
+                byte[] b = new byte[1024];
+                int n=0;
+                while((n=ins.read(b))!=-1){
+                    out.write(b, 0, n);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                try{
+                    ins.close();
+                    out.close();
+                }catch (Exception e){
+                }
+                file.delete();
+            }
+            renderJson(mapImg);
+        }
+    }
+
+    public void addAuthInfo(){
+        BusinessAuth businessAuth = getModel(BusinessAuth.class,"",true);
+        try {
+            businessAuth.setCreateTime(new Date());
+            businessAuth.setUpdateTime(new Date());
+            businessAuth.setAuthType("1");
+            if(businessAuth.getImgOnlineShop()!=null && !"".equals(businessAuth.getImgOnlineShop().trim())){
+                businessAuth.setAuthType("2");
+            }
+            businessAuth.save();
+            renderText("1");
+        }catch (Exception e){
+            renderErrorText("0");
+        }
+    }
 
     public void uploadImgs(){
         getResponse().addHeader("Access-Control-Allow-Origin","*");
