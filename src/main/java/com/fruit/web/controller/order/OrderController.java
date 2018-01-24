@@ -12,7 +12,6 @@ import com.jfinal.ext2.kit.DateTimeKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
 import org.apache.log4j.Logger;
-
 import java.math.BigDecimal;
 import java.util.*;
 

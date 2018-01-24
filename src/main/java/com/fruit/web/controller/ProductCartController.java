@@ -13,8 +13,8 @@ import com.jfinal.aop.Before;
 import org.apache.log4j.Logger;
 
 /**
- * @Author: ZGC AND LCC
- * @Date Created in 17:45 2018/1/3
+ * @author ZGC AND LCC
+ * @date Created in 17:45 2018/1/3
  */
 @Before(LoginInterceptor.class)
 public class ProductCartController extends BaseController {
@@ -25,16 +25,7 @@ public class ProductCartController extends BaseController {
 	 * 获取购物车商品
 	 */
 	public void getProduct() {
-		Param param = new Param();
-		param.createParam(2,"支付类型-公众号支付","JSAPI","wechar_tradeType","默认商家商城微信支付类型");
-//		param.setParam("wechar_appId","1");
-//		param.setParam("wechar_mchId","2");
-//		param.setParam("wechar_spbillCreateIp","");
-//		param.setParam("wechar_JsApiPay_notifyUrl","");
-//		param.setParam("wechar_key","");
-//		param.setParam("wechar_signType","");
 
-		param.createParam("后台参数","测试参数","这是即将要被获取的内容","test","全都是要被");
 		Integer pageNum = getParaToInt("pageNum", 1);
 		if(pageNum == null) {
 			pageNum = 1;
