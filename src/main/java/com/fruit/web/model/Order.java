@@ -26,7 +26,7 @@ public class Order extends BaseOrder<Order> {
 		sql.append("and o.`status` in (");
 		sql.append(status);
 		sql.append(") ");
-		sql.append("order by od.create_time ");
+		sql.append("order by od.create_time desc");
 		return find(sql.toString(),uid);
 	}
 

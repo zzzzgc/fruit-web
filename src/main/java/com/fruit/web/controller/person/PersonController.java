@@ -4,6 +4,7 @@ import com.fruit.web.base.BaseController;
 import com.fruit.web.model.BusinessUser;
 import com.fruit.web.model.Order;
 import com.fruit.web.util.Constant;
+import com.jfinal.kit.PropKit;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -57,6 +58,12 @@ public class PersonController extends BaseController{
         user.setPass(null);
         map.put("phone",user.getPhone());
         map.put("mapStatusAndCount",mapStatusAndCount);
+        String name = PropKit.get("ziho.name");
+        String bank = PropKit.get("ziho.bank");
+        String cardNum=PropKit.get("ziho.cardNum");
+        map.put("zihoName",name);
+        map.put("zihoBank",bank);
+        map.put("zihoCardNum",cardNum);
         renderJson(map);
     }
 }
