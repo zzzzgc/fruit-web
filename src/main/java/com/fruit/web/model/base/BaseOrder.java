@@ -33,12 +33,12 @@ public abstract class BaseOrder<M extends BaseOrder<M>> extends Model<M> impleme
 		return getInt("u_id");
 	}
 
-	public void setStatus(java.lang.Integer status) {
-		set("status", status);
+	public void setOrderStatus(java.lang.Integer orderStatus) {
+		set("order_status", orderStatus);
 	}
 
-	public java.lang.Integer getStatus() {
-		return getInt("status");
+	public java.lang.Integer getOrderStatus() {
+		return getInt("order_status");
 	}
 
 	public void setPayStatus(java.lang.Integer payStatus) {
@@ -73,6 +73,22 @@ public abstract class BaseOrder<M extends BaseOrder<M>> extends Model<M> impleme
 		return getStr("pay_callback");
 	}
 
+	public void setPaySuccess(java.lang.Integer paySuccess) {
+		set("pay_success", paySuccess);
+	}
+
+	public java.lang.Integer getPaySuccess() {
+		return getInt("pay_success");
+	}
+
+	public void setBuyUserName(java.lang.String buyUserName) {
+		set("buy_user_name", buyUserName);
+	}
+
+	public java.lang.String getBuyUserName() {
+		return getStr("buy_user_name");
+	}
+
 	public void setBuyPhone(java.lang.String buyPhone) {
 		set("buy_phone", buyPhone);
 	}
@@ -89,12 +105,36 @@ public abstract class BaseOrder<M extends BaseOrder<M>> extends Model<M> impleme
 		return getStr("buy_address");
 	}
 
+	public void setDeliveryType(java.lang.Integer deliveryType) {
+		set("delivery_type", deliveryType);
+	}
+
+	public java.lang.Integer getDeliveryType() {
+		return getInt("delivery_type");
+	}
+
 	public void setPayTime(java.util.Date payTime) {
 		set("pay_time", payTime);
 	}
 
 	public java.util.Date getPayTime() {
 		return get("pay_time");
+	}
+
+	public void setRefundStatus(java.lang.Integer refundStatus) {
+		set("refund_status", refundStatus);
+	}
+
+	public java.lang.Integer getRefundStatus() {
+		return getInt("refund_status");
+	}
+
+	public void setDeliveryTime(java.util.Date deliveryTime) {
+		set("delivery_time", deliveryTime);
+	}
+
+	public java.util.Date getDeliveryTime() {
+		return get("delivery_time");
 	}
 
 	public void setRefundTime(java.util.Date refundTime) {

@@ -1,10 +1,7 @@
 package com.fruit.web.controller.order;
 
 import com.fruit.web.base.BaseController;
-import com.fruit.web.model.Order;
-import com.fruit.web.model.OrderDetail;
-import com.fruit.web.model.Param;
-import com.fruit.web.model.Product;
+import com.fruit.web.model.*;
 import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
@@ -41,6 +38,9 @@ public class OrderController extends BaseController {
                 //临时限定100页数的购物车内容的获取
                 List<Product> products = Product.dao.listCartProduct(uid, 100, 1);
 
+                BusinessUser user = BusinessUser.dao.findByIdLoadColumns(uid, "name");
+                String name = user.getName();
+
                 //订单总金额
                 BigDecimal allTotalPay = new BigDecimal(0.00d);
                 //生成唯一有序id
@@ -49,13 +49,17 @@ public class OrderController extends BaseController {
                 //创建订单,初始订单的支付状态为0-未支付
                 Order order = new Order();
                 order.setPayStatus(0);
-                order.setStatus(0);
+                order.setOrderStatus(0);
                 order.setUId(uid);
                 order.setOrderId(orderId);
                 order.setUpdateTime(new Date());
                 order.setCreateTime(new Date());
                 order.setBuyAddress("");
                 order.setBuyPhone("");
+                order.setBuyUserName(name);
+                // 物流
+//                order.setDeliveryType(0);
+//                order.setDeliveryTime(new Date());
 
                 for (Product product : products) {
                     //获取购物车商品id
@@ -66,7 +70,7 @@ public class OrderController extends BaseController {
                             int buy_num = Integer.parseInt(product.get("buy_num").toString());
                             BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
                             BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price")).setScale(2, BigDecimal.ROUND_UP);
-                            String remark = product.get("remark").toString();
+                            String remark = product.get("remark") == null ? null: product.get("remark").toString();
                             String standard_name = product.get("standard_name").toString();
                             //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
                             BigDecimal totalPay = new BigDecimal(buy_num).multiply(sell_price);
@@ -140,7 +144,7 @@ public class OrderController extends BaseController {
 
                 Order order = new Order();
                 order.setPayStatus(0);
-                order.setStatus(0);
+                order.setOrderStatus(0);
                 order.setUId(uid);
                 order.setCreateTime(new Date());
                 order.setUpdateTime(new Date());
@@ -247,6 +251,7 @@ public class OrderController extends BaseController {
                     "\to.num,\n" +
                     "\to.product_standard_name,\n" +
                     "\to.product_standard_id,\n" +
+                    "\to.product_id,\n" +
                     "\to.product_name,\n" +
                     "\tp.img,\n" +
                     "\to.sell_price,\n" +
@@ -275,7 +280,6 @@ public class OrderController extends BaseController {
         } finally {
         }
     }
-
 
     //跳转页面
 

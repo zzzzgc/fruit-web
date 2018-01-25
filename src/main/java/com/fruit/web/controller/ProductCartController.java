@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.CartProduct;
-import com.fruit.web.model.Param;
 import com.fruit.web.model.Product;
 import com.fruit.web.util.Constant;
 import com.jfinal.aop.Before;
