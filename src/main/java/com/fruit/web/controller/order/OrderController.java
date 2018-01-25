@@ -304,7 +304,17 @@ public class OrderController extends BaseController {
         // 获取用户ID
         Object uid = getSessionAttr(Constant.SESSION_UID);
         List<Order> orderList = Order.dao.getOrderListByStatus(uid.toString(), order_status);
-        Map<String, List<Order>> map = new HashMap<String, List<Order>>();
+        LinkedHashMap<String, List<Order>> map = new LinkedHashMap<String, List<Order>>(){
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                return super.equals(o);
+            }
+        };
         for (Order order : orderList) {
             if (map.containsKey(order.getOrderId())) {
                 List<Order> orders = map.get(order.getOrderId());
@@ -319,5 +329,22 @@ public class OrderController extends BaseController {
         renderJson(map);
     }
 
+    // HashMap的value降序
+    public static List<Map.Entry<String,List<Order>>> hashMapperDesc(Map map){
+        List<Map.Entry<String,List<Order>>> list = new ArrayList<Map.Entry<String,List<Order>>>(map.entrySet());
+        Collections.sort(list,new Comparator<Map.Entry<String,List<Order>>>() {
+            //降序排序
+            public int compare(Map.Entry<String, List<Order>> o1,
+                               Map.Entry<String, List<Order>> o2) {
+                return o2.getValue().get(0).getCreateTime().compareTo(o1.getValue().get(0).getCreateTime());
+            }
+        });
+        Map<String,List<Order>> listMap=new HashMap<>();
+        for(Map.Entry<String,List<Order>> mapping:list){
+            listMap.put(mapping.getKey(),mapping.getValue());
+            System.out.println(mapping.getKey()+":"+mapping.getValue());
+        }
+        return list;
+    }
 
 }
