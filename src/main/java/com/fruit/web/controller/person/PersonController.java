@@ -32,7 +32,7 @@ public class PersonController extends BaseController{
             Integer myOrders=0;
             for (int i = 0; i < orderList.size(); i++) {
                 Order order=orderList.get(i);
-                Integer status=order.get("status");
+                Integer status=order.get("order_status");
                 Object countDB=order.get("count");
                 Integer count=Integer.parseInt(countDB.toString());
                 if(status==0){
@@ -58,12 +58,9 @@ public class PersonController extends BaseController{
         user.setPass(null);
         map.put("phone",user.getPhone());
         map.put("mapStatusAndCount",mapStatusAndCount);
-        String name = PropKit.get("ziho.name");
-        String bank = PropKit.get("ziho.bank");
-        String cardNum=PropKit.get("ziho.cardNum");
-        map.put("zihoName",name);
-        map.put("zihoBank",bank);
-        map.put("zihoCardNum",cardNum);
+        map.put("zihoName",PropKit.get("ziho.name"));
+        map.put("zihoBank",PropKit.get("ziho.bank"));
+        map.put("zihoCardNum",PropKit.get("ziho.cardNum"));
         renderJson(map);
     }
 }
