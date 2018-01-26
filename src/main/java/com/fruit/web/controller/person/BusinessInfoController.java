@@ -13,6 +13,7 @@ import java.util.List;
 public class BusinessInfoController extends BaseController{
     private static  Logger log = Logger.getLogger(BusinessInfoController.class);
 
+    // 添加商户信息
     public void addBusinessInfo(){
         try {
             BusinessInfo businessInfo=getModel(BusinessInfo.class,"",true);
@@ -24,8 +25,14 @@ public class BusinessInfoController extends BaseController{
             businessInfo.save();
             renderText("1");
         } catch (Exception e) {
-            e.printStackTrace();
             renderErrorText("0");
         }
+    }
+
+    // 获取商户信息
+    public void getBusinessInfo(){
+        Object uid=getSessionAttr(Constant.SESSION_UID);
+        List<BusinessInfo> businessInfoList=BusinessInfo.dao.getBusinessInfoByUid(Integer.parseInt(uid.toString()));
+        renderJson(businessInfoList);
     }
 }
