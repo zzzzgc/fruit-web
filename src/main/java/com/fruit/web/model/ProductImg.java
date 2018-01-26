@@ -11,7 +11,9 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class ProductImg extends BaseProductImg<ProductImg> {
 	public static final ProductImg dao = new ProductImg().dao();
+	// 产品图片
 	public static final int TYPE_PRODUCT = 1;
+	// 行情图片
 	public static final int TYPE_MARKET = 2;
 
 	public List<String> getImgs(int productId, int type) {
