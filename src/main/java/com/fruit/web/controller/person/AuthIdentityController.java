@@ -3,6 +3,7 @@ package com.fruit.web.controller.person;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.controller.ProductController;
 import com.fruit.web.model.BusinessAuth;
+import com.fruit.web.util.Constant;
 import com.jfinal.upload.UploadFile;
 import org.apache.log4j.Logger;
 
@@ -14,6 +15,10 @@ import java.util.*;
 public class AuthIdentityController extends BaseController {
     private static Logger log = Logger.getLogger(ProductController.class);
 
+    /**
+     * 上传认真图片
+     * @param imgL
+     */
     public void addAuthInfoImg(String imgL){
         getResponse().addHeader("Access-Control-Allow-Origin","*");
       /*  String test=getPara();
@@ -65,11 +70,16 @@ public class AuthIdentityController extends BaseController {
         }
     }
 
+    /**
+     * 添加用户店铺认证信息
+     */
     public void addAuthInfo(){
         BusinessAuth businessAuth = getModel(BusinessAuth.class,"",true);
         try {
             businessAuth.setCreateTime(new Date());
             businessAuth.setUpdateTime(new Date());
+            Object uid=getSessionAttr(Constant.SESSION_UID);
+            businessAuth.setUId(Integer.parseInt(uid.toString()));
             businessAuth.setAuthType("1");
             if(businessAuth.getImgOnlineShop()!=null && !"".equals(businessAuth.getImgOnlineShop().trim())){
                 businessAuth.setAuthType("2");
@@ -79,6 +89,14 @@ public class AuthIdentityController extends BaseController {
         }catch (Exception e){
             renderErrorText("0");
         }
+    }
+
+    /**
+     * 根据用户ID获取认证信息
+     */
+    public void getAuthInfoByUid(){
+        Object uid=getSessionAttr(Constant.SESSION_UID);
+        renderJson(BusinessAuth.dao.getBusinessAuthByUid(Integer.parseInt(uid.toString())));
     }
 
     public void uploadImgs(){
