@@ -54,10 +54,10 @@ public class OrderController extends BaseController {
                 order.setOrderId(orderId);
                 order.setUpdateTime(new Date());
                 order.setCreateTime(new Date());
-                order.setBuyAddress("");
-                order.setBuyPhone("");
-                order.setBuyUserName(name);
-                // 物流
+//                 物流
+//                order.setBuyAddress("");
+//                order.setBuyPhone("");
+//                order.setBuyUserName(name);
 //                order.setDeliveryType(0);
 //                order.setDeliveryTime(new Date());
 
@@ -149,8 +149,8 @@ public class OrderController extends BaseController {
                 order.setCreateTime(new Date());
                 order.setUpdateTime(new Date());
                 order.setOrderId(orderId);
-                order.setBuyAddress("");
-                order.setBuyPhone("");
+//                order.setBuyAddress("");
+//                order.setBuyPhone("");
                 order.setPayNeedMoney(sell_price);
                 order.setPayTotalMoney(new BigDecimal(0));
                 order.save();

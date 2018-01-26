@@ -17,6 +17,14 @@ public abstract class BaseBusinessAuth<M extends BaseBusinessAuth<M>> extends Mo
 		return getInt("id");
 	}
 
+	public void setUId(java.lang.Integer uId) {
+		set("u_id", uId);
+	}
+
+	public java.lang.Integer getUId() {
+		return getInt("u_id");
+	}
+
 	public void setLegalPersonName(java.lang.String legalPersonName) {
 		set("legal_person_name", legalPersonName);
 	}
