@@ -32,7 +32,7 @@ public class AuthIdentityController extends BaseController {
         // 获取到图片
         List<UploadFile> listUploadFile=getFiles();
         Map<Integer,String> mapImg=new HashMap<Integer,String>();
-        String projectPath=getRequest().getSession().getServletContext().getRealPath("images");
+        String projectPath=getRequest().getSession().getServletContext().getRealPath("static/images");
         for (int i = 0; i < listUploadFile.size(); i++) {
             UploadFile uploadFile =listUploadFile.get(i);
             String originalFileName =uploadFile.getOriginalFileName();
@@ -95,8 +95,9 @@ public class AuthIdentityController extends BaseController {
      * 根据用户ID获取认证信息
      */
     public void getAuthInfoByUid(){
+        BusinessAuth businessAuth = getModel(BusinessAuth.class,"",true);
         Object uid=getSessionAttr(Constant.SESSION_UID);
-        renderJson(BusinessAuth.dao.getBusinessAuthByUid(Integer.parseInt(uid.toString())));
+        renderJson(BusinessAuth.dao.getBusinessAuthByUid(Integer.parseInt(uid.toString()),Integer.parseInt(businessAuth.getAuthType())));
     }
 
     public void uploadImgs(){
