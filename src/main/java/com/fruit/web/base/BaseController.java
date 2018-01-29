@@ -36,7 +36,7 @@ public abstract class BaseController extends Controller{
 	}
 
 	/**
-	 * 身份认证失败跳登录
+	 * 身份认证失败跳登录,可删
 	 */
 	protected void renderLogin(String errorText) {
 		render(new ErrorTextRender(401, errorText));

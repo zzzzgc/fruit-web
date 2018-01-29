@@ -186,10 +186,23 @@ public class OrderController extends BaseController {
     private String getOrderId() {
         String orderId;
         synchronized (OrderController.class) {
-            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT + "-" + RandomKit.random(100000, 999999);
+            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date())  + COUNT + RandomKit.random(1000, 9999);
             COUNT++;
         }
         return orderId;
+    }
+
+    /**
+     * 返回总数和金额
+     */
+    public void getOrderCount(){
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        Order first = Order.dao.findFirst("SELECT count(1) as order_count,SUM(b_order.pay_need_money) as total_money FROM b_order WHERE u_id = ?",uid);
+        HashMap<String, String> map = new HashMap<>(2);
+        map.put("order_count",first.get("order_count"));
+        map.put("total_money",first.get("total_money"));
+        System.out.println(map);
+        renderJson(map);
     }
 
     /**

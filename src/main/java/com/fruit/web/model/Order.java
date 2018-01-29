@@ -16,7 +16,7 @@ public class Order extends BaseOrder<Order> {
 	public List<Order> getOrderListByStatus(String uid, String status){
 		StringBuilder sql = new StringBuilder();
 		sql.append("select od.id,od.order_id , od.create_time , p.`name`,pi.img_url, ");
-		sql.append("if(p.country='中国','','进口') as country ,od.num, ");
+		sql.append("if(p.country='中国','中国','进口') as country ,od.num, ");
 		sql.append("od.buy_remark,if(p.country='中国',false,false) `check`,o.pay_status ispay, ");
 		sql.append("od.sell_price,od.product_standard_name ,o.`order_status` ");
 		sql.append("from b_product p,b_product_standard ps,b_order_detail od,b_product_img pi,b_order o ");
@@ -34,7 +34,14 @@ public class Order extends BaseOrder<Order> {
 	public List<Order> getOrderListDetail(String uid, String status,String orderId){
 		StringBuilder sql = new StringBuilder();
 		sql.append("select o.id,o.order_id , o.create_time , p.`name`,pi.img_url, ");
-		sql.append("if(p.country='中国','','进口') as country ,o.num, ");
+		sql.append("CASE p.country\n" +
+				"\t\tWHEN '中国' THEN\n" +
+				"\t\t\t'国产'\n" +
+				"\t\tWHEN '香港' THEN\n" +
+				"\t\t\t'国产'\n" +
+				"\t\tELSE\n" +
+				"\t\t\t'进口'\n" +
+				"\t\tEND country,as country ,o.num, ");
 		sql.append("o.buy_remark,if(p.country='中国',false,false) `check`,o.pay_status ispay,o.sell_price,o.product_standard_name ");
 		sql.append("from b_product p,b_product_standard ps,b_order o,b_product_img pi ");
 		sql.append("where p.id=ps.product_id and p.id=o.product_id and pi.product_id=o.product_id ");
