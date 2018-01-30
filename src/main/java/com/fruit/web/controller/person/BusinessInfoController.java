@@ -1,15 +1,17 @@
 package com.fruit.web.controller.person;
 
+import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.BusinessInfo;
 import com.fruit.web.util.Constant;
+import com.jfinal.aop.Before;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
+@Before(LoginInterceptor.class)
 public class BusinessInfoController extends BaseController{
     private static  Logger log = Logger.getLogger(BusinessInfoController.class);
 

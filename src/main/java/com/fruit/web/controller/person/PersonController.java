@@ -1,9 +1,11 @@
 package com.fruit.web.controller.person;
 
+import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.BusinessUser;
 import com.fruit.web.model.Order;
 import com.fruit.web.util.Constant;
+import com.jfinal.aop.Before;
 import com.jfinal.kit.PropKit;
 import org.apache.log4j.Logger;
 
@@ -14,6 +16,7 @@ import java.util.Map;
 /**
  * @author  LZZ
  */
+@Before(LoginInterceptor.class)
 public class PersonController extends BaseController{
     private static Logger logger= Logger.getLogger(PersonController.class);
 

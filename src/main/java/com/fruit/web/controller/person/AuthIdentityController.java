@@ -1,9 +1,11 @@
 package com.fruit.web.controller.person;
 
+import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.controller.ProductController;
 import com.fruit.web.model.BusinessAuth;
 import com.fruit.web.util.Constant;
+import com.jfinal.aop.Before;
 import com.jfinal.upload.UploadFile;
 import org.apache.log4j.Logger;
 
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
 
+@Before(LoginInterceptor.class)
 public class AuthIdentityController extends BaseController {
     private static Logger log = Logger.getLogger(ProductController.class);
 
