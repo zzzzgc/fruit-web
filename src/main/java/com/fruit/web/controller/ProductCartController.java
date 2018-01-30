@@ -9,7 +9,12 @@ import com.fruit.web.model.CartProduct;
 import com.fruit.web.model.Product;
 import com.fruit.web.util.Constant;
 import com.jfinal.aop.Before;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.IAtom;
+import com.jfinal.plugin.activerecord.tx.Tx;
 import org.apache.log4j.Logger;
+
+import java.util.List;
 
 /**
  * @author ZGC AND LCC
@@ -17,85 +22,93 @@ import org.apache.log4j.Logger;
  */
 @Before(LoginInterceptor.class)
 public class ProductCartController extends BaseController {
-	private static Logger log = Logger.getLogger(ProductCartController.class);
-	private static final int PAGE_SIZE = 50;
+    private static Logger log = Logger.getLogger(ProductCartController.class);
+    private static final int PAGE_SIZE = 50;
 
-	/**
-	 * 获取购物车商品
-	 */
-	public void getProduct() {
+    /**
+     * 获取购物车商品
+     */
+    public void getProduct() {
+        try {
+            Integer pageNum = getParaToInt("pageNum", 1);
+            if (pageNum == null) {
+                pageNum = 1;
+            }
+            Integer uid = getSessionAttr(Constant.SESSION_UID);
+            List<Product> products = Product.dao.listCartProduct(uid, PAGE_SIZE, pageNum);
+            System.out.println(products);
+            renderJson(products);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-		Integer pageNum = getParaToInt("pageNum", 1);
-		if(pageNum == null) {
-			pageNum = 1;
-		}
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
-		renderJson(Product.dao.listCartProduct(uid, PAGE_SIZE, pageNum));
-	}
+    /**
+     * 删除购物车商品
+     */
+    public void removeProduct() {
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        Integer[] productIds = getParaValuesToInt("ids");
+        for (Integer productId : productIds) {
+            System.out.println("删除购物车商品-" + productId);
+        }
+        CartProduct.dao.removeCartProduct(uid, productIds);
+        renderResult(true);
+    }
 
-	/**
-	 * 删除购物车商品
-	 */
-	public void removeProduct() {
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
-		Integer[] productIds = getParaValuesToInt("ids");
-		CartProduct.dao.removeCartProduct(uid, productIds);
-		renderResult(true);
-	}
+    /**
+     * 添加购物车商品
+     */
+    public void addProduct() {
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        Integer standardId = getParaToInt("standard_id");
+        Integer buyNum = getParaToInt("buy_num", 1);
+        String remark = getPara("remark");
 
-	/**
-	 * 添加购物车商品
-	 */
-	public void addProduct() {
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
-		Integer standardId = getParaToInt("standard_id");
-		Integer buyNum = getParaToInt("buy_num", 1);
-		String remark = getPara("remark");
+        if (standardId == null) {
+            renderErrorText("参数有误");
+            return;
+        }
+        CartProduct.dao.addProduct(uid, standardId, buyNum, remark);
+        renderResult(true);
+    }
 
-		if(standardId == null) {
-			renderErrorText("参数有误");
-			return;
-		}
-		CartProduct.dao.addProduct(uid, standardId, buyNum, remark);
-		renderResult(true);
-	}
+    /**
+     * 新增或修改购物车商品
+     */
+    public void updateProduct() {
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        Integer standardId = getParaToInt("standard_id");
+        Integer buyNum = getParaToInt("buy_num", 1);
+        String remark = getPara("remark");
 
-	/**
-	 * 新增或修改购物车商品
-	 */
-	public void updateProduct() {
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
-		Integer standardId = getParaToInt("standard_id");
-		Integer buyNum = getParaToInt("buy_num", 1);
-		String remark = getPara("remark");
+        if (standardId == null) {
+            renderErrorText("参数有误");
+            return;
+        }
+        CartProduct.dao.saveAndUpdateProduct(uid, standardId, buyNum, remark);
+        renderResult(true);
+    }
 
-		if(standardId == null) {
-			renderErrorText("参数有误");
-			return;
-		}
-		CartProduct.dao.saveAndUpdateProduct(uid, standardId, buyNum, remark);
-		renderResult(true);
-	}
-
-	/**
-	 * 批量添加商品,目前用于添加本地购物车到数据库
-	 */
-	public void saveGoodsData() {
-		Integer uid = getSessionAttr(Constant.SESSION_UID);
-		String cartProductsByJson = getPara("cartProducts");
-		System.out.println("cartProductsByJson"+cartProductsByJson);
-		JSONArray arrayJson = JSON.parseArray(cartProductsByJson);
-		for (int i = 0; i < arrayJson.size(); i++) {
-			JSONObject products = arrayJson.getJSONObject(i);
-			String remark = products.getString("remark");
-			Integer buy_num = products.getInteger("buy_num");
-			Integer standard_id = products.getInteger("standard_id");
-			System.out.println("remark:"+remark+",buy_num:"+buy_num+",standard_id:"+standard_id);
-			//如果有重复的商品,直接累加到数据库
-			CartProduct.dao.addProduct(uid, standard_id, buy_num, remark);
-		}
-		renderResult(true);
-	}
+    /**
+     * 批量添加商品,目前用于添加本地购物车到数据库
+     */
+    public void saveGoodsData() {
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        String cartProductsByJson = getPara("cartProducts");
+        System.out.println("cartProductsByJson" + cartProductsByJson);
+        JSONArray arrayJson = JSON.parseArray(cartProductsByJson);
+        for (int i = 0; i < arrayJson.size(); i++) {
+            JSONObject products = arrayJson.getJSONObject(i);
+            String remark = products.getString("remark");
+            Integer buy_num = products.getInteger("buy_num");
+            Integer standard_id = products.getInteger("standard_id");
+            System.out.println("remark:" + remark + ",buy_num:" + buy_num + ",standard_id:" + standard_id);
+            //如果有重复的商品,直接累加到数据库
+            CartProduct.dao.addProduct(uid, standard_id, buy_num, remark);
+        }
+        renderResult(true);
+    }
 
 
 }

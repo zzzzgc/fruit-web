@@ -20,13 +20,9 @@ public class LoginInterceptor implements Interceptor {
     public void intercept(Invocation inv) {
         log.info("----------登录拦截器----------");
         Controller controller = inv.getController();
-
-        Integer uid = controller.getSessionAttr(Constant.SESSION_UID);// 获取的session的id 和 登录时session的id不一样
-        System.out.println(uid);
-
-        log.info("----------session获取jsessionid为" + controller.getSession().getId() + "----------");
-
-        log.info("----------cookie获取jsessionid为" + controller.getCookie("JSESSIONID") + "----------");
+        // 获取的session的id 和 登录时session的id不一样
+        Integer uid = controller.getSessionAttr(Constant.SESSION_UID);
+        System.out.println("验证用户:"+uid+",已登录");
 
         if (uid == null) {
             //微信前端的拦截器会拦截401并跳转到login页面的

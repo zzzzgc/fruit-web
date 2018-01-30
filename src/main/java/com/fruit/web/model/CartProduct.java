@@ -4,8 +4,10 @@ import com.fruit.web.model.base.BaseCartProduct;
 import com.fruit.web.model.base.BaseProduct;
 import com.fruit.web.util.Common;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.IAtom;
 import com.jfinal.plugin.activerecord.Record;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -22,8 +24,19 @@ public class CartProduct extends BaseCartProduct<CartProduct> {
      * @param uid
      * @param ids
      */
-    public void removeCartProduct(int uid, Integer[] ids) {
-        Db.update("delete from b_cart_product where uid=? and product_standard_id in (" + Common.arrayToSqlIn(ids) + ") ", uid);
+    public boolean removeCartProduct(int uid, Integer[] ids) {
+        return Db.tx(new IAtom() {
+            @Override
+            public boolean run(){
+                try {
+                    Db.update("delete from b_cart_product where uid=? and product_standard_id in (" + Common.arrayToSqlIn(ids) + ") ", uid);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+        });
     }
 
     /**

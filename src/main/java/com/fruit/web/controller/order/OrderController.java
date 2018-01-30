@@ -1,14 +1,18 @@
 package com.fruit.web.controller.order;
 
+import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.*;
 import com.fruit.web.service.PayService;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
+import com.jfinal.aop.Before;
 import com.jfinal.ext2.kit.DateTimeKit;
 import com.jfinal.ext2.kit.RandomKit;
 import com.jfinal.kit.HashKit;
+import com.jfinal.plugin.activerecord.tx.Tx;
 import org.apache.log4j.Logger;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -16,6 +20,7 @@ import java.util.*;
  * Author ZGC and CCZ
  * Date Created in 15:52 2018/1/3
  */
+@Before(LoginInterceptor.class)
 public class OrderController extends BaseController {
 
     private static Logger log = Logger.getLogger(OrderController.class);
@@ -28,85 +33,89 @@ public class OrderController extends BaseController {
     /**
      * 购物车生成订单(下单)
      */
+    @Before(Tx.class)
     public void createOrder() {
-        System.out.println("------------生成订单-----------------");
+        System.out.println("------------购物车批量生成订单-----------------");
+//        boolean tx = Db.tx(new IAtom() {
+//            @Override
+//            public boolean run() throws SQLException {
         try {
             //获取前端传过来的商品规格id
             Integer[] standardIds = getParaValuesToInt("standardIds");
             if (standardIds != null && standardIds.length > 0) {
                 Integer uid = getSessionAttr(Constant.SESSION_UID);
+
                 //临时限定100页数的购物车内容的获取
                 List<Product> products = Product.dao.listCartProduct(uid, 100, 1);
 
-                BusinessUser user = BusinessUser.dao.findByIdLoadColumns(uid, "name");
-                String name = user.getName();
+                if (products != null && products.size() > 0) {
+                    BusinessUser user = BusinessUser.dao.findByIdLoadColumns(uid, "name");
+                    String name = user.getName();
 
-                //订单总金额
-                BigDecimal allTotalPay = new BigDecimal(0.00d);
-                //生成唯一有序id
-                String orderId = getOrderId();
+                    //订单总金额
+                    BigDecimal allTotalPay = new BigDecimal(0.00d);
+                    //生成唯一有序id
+                    String orderId = getOrderId();
 
-                //创建订单,初始订单的支付状态为0-未支付
-                Order order = new Order();
-                order.setPayStatus(0);
-                order.setOrderStatus(0);
-                order.setUId(uid);
-                order.setOrderId(orderId);
-                order.setUpdateTime(new Date());
-                order.setCreateTime(new Date());
-//                 物流
-//                order.setBuyAddress("");
-//                order.setBuyPhone("");
-//                order.setBuyUserName(name);
-//                order.setDeliveryType(0);
-//                order.setDeliveryTime(new Date());
+                    //创建订单,初始订单的支付状态为0-未支付
+                    Order order = new Order();
+                    order.setPayStatus(0);
+                    order.setOrderStatus(0);
+                    order.setUId(uid);
+                    order.setOrderId(orderId);
+                    order.setUpdateTime(new Date());
+                    order.setCreateTime(new Date());
 
-                for (Product product : products) {
-                    //获取购物车商品id
-                    int standardId = Integer.parseInt(product.get("standard_id").toString());
-                    for (Integer id : standardIds) {
-                        if (id.equals(standardId)) {
-                            //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
-                            int buy_num = Integer.parseInt(product.get("buy_num").toString());
-                            BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
-                            BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price")).setScale(2, BigDecimal.ROUND_UP);
-                            String remark = product.get("remark") == null ? null: product.get("remark").toString();
-                            String standard_name = product.get("standard_name").toString();
-                            //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
-                            BigDecimal totalPay = new BigDecimal(buy_num).multiply(sell_price);
-                            //添加到总支付金额中
-                            allTotalPay = allTotalPay.add(totalPay);
+                    for (Product product : products) {
+                        //获取购物车商品id
+                        int standardId = Integer.parseInt(product.get("standard_id").toString());
+                        thisStart:
+                        for (Integer id : standardIds) {
+                            if (id.equals(standardId)) {
+                                //buy_num能被取出来是因为所有取出来的内容都被封装在实体对象中了
+                                int buy_num = Integer.parseInt(product.get("buy_num").toString());
+                                BigDecimal sell_price = ConvertUtils.toBigDecimal(product.get("sell_price")).setScale(2, BigDecimal.ROUND_UP);
+                                BigDecimal original_price = ConvertUtils.toBigDecimal(product.get("original_price")).setScale(2, BigDecimal.ROUND_UP);
+                                String remark = product.get("remark") == null ? null : product.get("remark").toString();
+                                String standard_name = product.get("standard_name").toString();
+                                //订单金额,目前只是简单计算,没有加入抵用券等金额修改的操作
+                                BigDecimal totalPay = new BigDecimal(buy_num).multiply(sell_price);
+                                //添加到总支付金额中
+                                allTotalPay = allTotalPay.add(totalPay);
 
-                            //创建子订单,初始订单状态为0-未支付(已下单),手机和收获地址暂时为空
-                            OrderDetail orderDetail = new OrderDetail();
-                            orderDetail.setOrderId(orderId);
-                            orderDetail.setProductId(product.getId());
-                            orderDetail.setProductStandardId(id);
-                            orderDetail.setProductName(product.getName());
-                            orderDetail.setProductStandardName(standard_name);
-                            orderDetail.setNum(buy_num);
-                            orderDetail.setSellPrice(sell_price);
-                            orderDetail.setTotalPay(totalPay);
-                            orderDetail.setFruitType(product.getFruitType());
-                            orderDetail.setOriginalPrice(original_price);
-                            orderDetail.setMeasureUnit(product.getMeasureUnit());
-                            orderDetail.setBuyUid(uid);
-                            orderDetail.setBuyRemark(remark);
-                            orderDetail.setUpdateTime(new Date());
-                            orderDetail.setCreateTime(new Date());
-                            orderDetail.save();
+                                //创建子订单,初始订单状态为0-未支付(已下单),手机和收获地址暂时为空
+                                OrderDetail orderDetail = new OrderDetail();
+                                orderDetail.setOrderId(orderId);
+                                orderDetail.setProductId(product.getId());
+                                orderDetail.setProductStandardId(id);
+                                orderDetail.setProductName(product.getName());
+                                orderDetail.setProductStandardName(standard_name);
+                                orderDetail.setNum(buy_num);
+                                orderDetail.setSellPrice(sell_price);
+                                orderDetail.setTotalPay(totalPay);
+                                orderDetail.setFruitType(product.getFruitType());
+                                orderDetail.setOriginalPrice(original_price);
+                                orderDetail.setMeasureUnit(product.getMeasureUnit());
+                                orderDetail.setBuyUid(uid);
+                                orderDetail.setBuyRemark(remark);
+                                orderDetail.setUpdateTime(new Date());
+                                orderDetail.setCreateTime(new Date());
+                                orderDetail.save();
+                                break thisStart;
+                            }
                         }
                     }
+                    allTotalPay = allTotalPay.setScale(2, BigDecimal.ROUND_UP);
+                    // 待支付金额
+                    order.setPayNeedMoney(allTotalPay);
+                    // 已支付金额
+                    order.setPayTotalMoney(new BigDecimal(0));
+                    order.save();
+                    renderText(orderId);
+                    // TODO 清空购物车
+                } else {
+                    renderErrorText("购物车为空");
                 }
-
-                allTotalPay = allTotalPay.setScale(2, BigDecimal.ROUND_UP);
-                // 待支付金额
-                order.setPayNeedMoney(allTotalPay);
-                // 已支付金额
-                order.setPayTotalMoney(new BigDecimal(0));
-                order.save();
-
-                renderJson(orderId);
             } else {
                 renderErrorText("没有选定商品下单\t请正确下单后重试");
             }
@@ -115,12 +124,16 @@ public class OrderController extends BaseController {
             e.printStackTrace();
         } finally {
         }
+//            }
+//        });
     }
 
     /**
      * 直接创建订单(下单)
      */
+    @Before(Tx.class)
     public void directCreateOrder() {
+        System.out.println("------------单笔(直接)生成订单-----------------");
         //生成唯一有序id
         String orderId;
         orderId = getOrderId();
@@ -142,6 +155,7 @@ public class OrderController extends BaseController {
                 // 单位
                 String measure_unit = getPara("measure_unit");
 
+
                 Order order = new Order();
                 order.setPayStatus(0);
                 order.setOrderStatus(0);
@@ -149,8 +163,6 @@ public class OrderController extends BaseController {
                 order.setCreateTime(new Date());
                 order.setUpdateTime(new Date());
                 order.setOrderId(orderId);
-//                order.setBuyAddress("");
-//                order.setBuyPhone("");
                 order.setPayNeedMoney(sell_price);
                 order.setPayTotalMoney(new BigDecimal(0));
                 order.save();
@@ -172,21 +184,23 @@ public class OrderController extends BaseController {
                 orderDetail.setCreateTime(new Date());
                 orderDetail.setUpdateTime(new Date());
                 orderDetail.save();
-
                 // 返回订单号
                 renderText(orderId);
+            } else {
+                renderErrorText("没有选定商品下单\t请正确下单后重试");
             }
         } catch (Exception e) {
             renderErrorText("后台异常!!!");
             e.printStackTrace();
         } finally {
         }
+
     }
 
     private String getOrderId() {
         String orderId;
         synchronized (OrderController.class) {
-            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date())  + COUNT + RandomKit.random(1000, 9999);
+            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT + RandomKit.random(1000, 9999);
             COUNT++;
         }
         return orderId;
@@ -195,12 +209,12 @@ public class OrderController extends BaseController {
     /**
      * 返回总数和金额
      */
-    public void getOrderCount(){
+    public void getOrderCount() {
         Integer uid = getSessionAttr(Constant.SESSION_UID);
-        Order first = Order.dao.findFirst("SELECT count(1) as order_count,SUM(b_order.pay_need_money) as total_money FROM b_order WHERE u_id = ?",uid);
+        Order first = Order.dao.findFirst("SELECT count(1) as order_count,SUM(b_order.pay_need_money) as total_money FROM b_order WHERE u_id = ?", uid);
         HashMap<String, String> map = new HashMap<>(2);
-        map.put("order_count",first.get("order_count"));
-        map.put("total_money",first.get("total_money"));
+        map.put("order_count", first.get("order_count"));
+        map.put("total_money", first.get("total_money"));
         System.out.println(map);
         renderJson(map);
     }
@@ -284,20 +298,14 @@ public class OrderController extends BaseController {
                 price = price.add(sellPrice);
             }
             HashMap<String, Object> responseMap = new HashMap<>(2);
-            responseMap.put("products",orderDetails);
-            responseMap.put("totalPrice",price);
+            responseMap.put("products", orderDetails);
+            responseMap.put("totalPrice", price);
 
             renderJson(responseMap);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
         }
-    }
-
-    //跳转页面
-
-    public static void main(String[] args) {
-
     }
 
     /**
@@ -321,7 +329,7 @@ public class OrderController extends BaseController {
         // 获取用户ID
         Object uid = getSessionAttr(Constant.SESSION_UID);
         List<Order> orderList = Order.dao.getOrderListByStatus(uid.toString(), order_status);
-        LinkedHashMap<String, List<Order>> map = new LinkedHashMap<String, List<Order>>(){
+        LinkedHashMap<String, List<Order>> map = new LinkedHashMap<String, List<Order>>() {
             @Override
             public int hashCode() {
                 return super.hashCode();
@@ -347,19 +355,20 @@ public class OrderController extends BaseController {
     }
 
     // HashMap的value降序
-    public static List<Map.Entry<String,List<Order>>> hashMapperDesc(Map map){
-        List<Map.Entry<String,List<Order>>> list = new ArrayList<Map.Entry<String,List<Order>>>(map.entrySet());
-        Collections.sort(list,new Comparator<Map.Entry<String,List<Order>>>() {
+    public static List<Map.Entry<String, List<Order>>> hashMapperDesc(Map map) {
+        List<Map.Entry<String, List<Order>>> list = new ArrayList<Map.Entry<String, List<Order>>>(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, List<Order>>>() {
             //降序排序
+            @Override
             public int compare(Map.Entry<String, List<Order>> o1,
                                Map.Entry<String, List<Order>> o2) {
                 return o2.getValue().get(0).getCreateTime().compareTo(o1.getValue().get(0).getCreateTime());
             }
         });
-        Map<String,List<Order>> listMap=new HashMap<>();
-        for(Map.Entry<String,List<Order>> mapping:list){
-            listMap.put(mapping.getKey(),mapping.getValue());
-            System.out.println(mapping.getKey()+":"+mapping.getValue());
+        Map<String, List<Order>> listMap = new HashMap<>();
+        for (Map.Entry<String, List<Order>> mapping : list) {
+            listMap.put(mapping.getKey(), mapping.getValue());
+            System.out.println(mapping.getKey() + ":" + mapping.getValue());
         }
         return list;
     }
