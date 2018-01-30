@@ -60,20 +60,6 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 验证码校验
-     */
-    public void validationVerifyCode() {
-        String verifyCode = getPara("verifyCode");
-        String serviceVerifyCode = getVerifyCode();
-        if (verifyCode != null && serviceVerifyCode != null && verifyCode.equals(serviceVerifyCode)) {
-
-        } else {
-            renderErrorText("验证码错误!");
-        }
-
-    }
-
-    /**
      * 退出登录操作
      */
     public void logout() {
@@ -83,6 +69,20 @@ public class LoginController extends BaseController {
         }
         getSession().invalidate();
         renderNull();
+    }
+
+    /**
+     * 验证码校验
+     */
+    public void validationVerifyCode() {
+        String verifyCode = getPara("verifyCode");
+        String serviceVerifyCode = getVerifyCode();
+        if (verifyCode != null && serviceVerifyCode != null && verifyCode.toUpperCase().equals(serviceVerifyCode)) {
+
+        } else {
+            renderErrorText("验证码错误!");
+        }
+
     }
 
     /**
