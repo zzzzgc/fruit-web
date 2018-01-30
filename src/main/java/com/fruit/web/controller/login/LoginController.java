@@ -13,6 +13,11 @@ public class LoginController extends BaseController {
     private Logger log = Logger.getLogger(getClass());
 
     /**
+     * 登录用的session的key
+     */
+    private final static String LOGIN_VERIFY_CODE = "login_verify_code";
+
+    /**
      * 登录操作
      */
     public void auth() {
@@ -21,6 +26,17 @@ public class LoginController extends BaseController {
             renderJson(new DataResult<>(DataResult.CODE_SUCCESS, "登录成功"));
             //return;
         }
+
+        // TODO 用验证码作比较
+        String verifyCode = getVerifyCode();
+        if (verifyCode != null && verifyCode.equals("验证码")) {
+
+        }else {
+            renderErrorText("验证码错误!");
+            return;
+        }
+
+
         String phone = getPara("phone");
         String password = StringUtils.isNotBlank(getPara("password")) ? HashKit.md5(getPara("password")) : getPara("password");
 
@@ -32,9 +48,11 @@ public class LoginController extends BaseController {
                 renderNull();
             } else {
                 renderErrorText("用户名或密码有误");
+                return;
             }
         } else {
             renderErrorText("请填写用户名、密码");
+            return;
         }
     }
 
@@ -57,5 +75,22 @@ public class LoginController extends BaseController {
         getSession().invalidate();
         renderNull();
     }
+
+    /**
+     * 生成验证码
+     */
+    public void createVerifyCode(){
+        //TODO 添加验证码到session和生成图片到制定目录
+        getSession().setAttribute(LOGIN_VERIFY_CODE,"");
+    }
+
+    /**
+     * 获取来验证码
+     * @return
+     */
+    private String getVerifyCode(){
+        return getSessionAttr(LOGIN_VERIFY_CODE);
+    }
+
 
 }
