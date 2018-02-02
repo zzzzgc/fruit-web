@@ -49,12 +49,28 @@ public abstract class BaseBusinessUser<M extends BaseBusinessUser<M>> extends Mo
 		return getStr("phone");
 	}
 
-	public void setWeixinToken(java.lang.String weixinToken) {
-		set("weixin_token", weixinToken);
+	public void setWeixinOpenId(java.lang.String weixinOpenId) {
+		set("weixin_open_id", weixinOpenId);
 	}
 
-	public java.lang.String getWeixinToken() {
-		return getStr("weixin_token");
+	public java.lang.String getWeixinOpenId() {
+		return getStr("weixin_open_id");
+	}
+
+	public void setSequence(java.lang.String sequence) {
+		set("sequence", sequence);
+	}
+
+	public java.lang.String getSequence() {
+		return getStr("sequence");
+	}
+
+	public void setIp(java.lang.String ip) {
+		set("ip", ip);
+	}
+
+	public java.lang.String getIp() {
+		return getStr("ip");
 	}
 
 	public void setLastLoginTime(java.util.Date lastLoginTime) {

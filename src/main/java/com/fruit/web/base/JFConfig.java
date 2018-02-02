@@ -92,4 +92,20 @@ public class JFConfig extends JFinalConfig {
     public void configHandler(Handlers me) {
 //		me.add(new PageHandler());
 	}
+
+    /**
+     * 系统启动完成后回调
+     */
+    @Override
+    public void afterJFinalStart() {
+        System.out.println("---------------启动成功---------------");
+    }
+
+    /**
+     * 系统关闭之前回调
+     */
+    @Override
+    public void beforeJFinalStop() {
+        System.out.println("---------------关闭成功---------------");
+    }
 }

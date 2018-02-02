@@ -1,5 +1,7 @@
 package com.fruit.web.controller;
 
+import com.jfinal.ext2.kit.RandomKit;
+
 /**
  * 支付回调接口
  * @Author: ZGC
@@ -12,5 +14,10 @@ public class PayController {
      */
     public void wecharCallBack(){
 
+    }
+
+    public static void main(String[] args) {
+        System.out.println(RandomKit.random(0, 16));
+        System.out.println(RandomKit.randomMD5Str());
     }
 }
