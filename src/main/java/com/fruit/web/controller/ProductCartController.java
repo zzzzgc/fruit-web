@@ -63,7 +63,7 @@ public class ProductCartController extends BaseController {
         Integer uid = getSessionAttr(Constant.SESSION_UID);
         Integer standardId = getParaToInt("standard_id");
         Integer buyNum = getParaToInt("buy_num", 1);
-        String remark = getPara("remark");
+        String remark = getPara("remark") == null ? "" : getPara("remark");
 
         if (standardId == null) {
             renderErrorText("参数有误");

@@ -6,11 +6,13 @@ import com.fruit.web.util.Constant;
 import com.fruit.web.util.DataResult;
 import com.fruit.web.util.VerifyCodeUtils;
 import com.jfinal.kit.HashKit;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 public class LoginController extends BaseController {
 
@@ -56,6 +58,20 @@ public class LoginController extends BaseController {
      * 注册操作
      */
     public void register() {
+        try {
+            String password = getPara("password");
+            String phone = getPara("phone");
+            BusinessUser user = new BusinessUser();
+            user.setPhone(phone);
+            user.setPass(HashKit.md5(password));
+            user.setCreateTime(new Date());
+            user.setUpdateTime(new Date());
+            user.save();
+            renderNull();
+        } catch (Exception e) {
+            e.printStackTrace();
+            renderErrorText("系统异常,请稍后再试");
+        }
 
     }
 
