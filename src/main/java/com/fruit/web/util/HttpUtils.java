@@ -1,5 +1,6 @@
 package com.fruit.web.util;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 public class HttpUtils {
     public static final Logger log = Logger.getLogger(HttpUtils.class.toString());
 
-    private static String  ENCODE_TYPE="UTF-8";
+    private static final String  ENCODE_TYPE="UTF-8";
 
     /**
      * 向指定URL发送GET方法的请求
@@ -95,7 +96,8 @@ public class HttpUtils {
             // 发送POST请求必须设置如下两行
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setRequestMethod("POST");    // POST方法
+            // POST方法
+            conn.setRequestMethod("POST");
 
 
             // 设置通用的请求属性
@@ -139,6 +141,39 @@ public class HttpUtils {
             }
         }
         return result;
+    }
+
+
+
+    /**
+     * 获取用户ip
+     *
+     * @param request
+     * @return
+     */
+    public static String getRequestIp(HttpServletRequest request) {
+        String remoteAddr = request.getRemoteAddr();
+        String forwarded = request.getHeader("X-Forwarded-For");
+        String realIp = request.getHeader("X-Real-IP");
+
+        String ip = null;
+        if (realIp == null) {
+            if (forwarded == null) {
+                ip = remoteAddr;
+            } else {
+                ip = remoteAddr + "/" + forwarded.split(",")[0];
+            }
+        } else {
+            if (realIp.equals(forwarded)) {
+                ip = realIp;
+            } else {
+                if (forwarded != null) {
+                    forwarded = forwarded.split(",")[0];
+                }
+                ip = realIp + "/" + forwarded;
+            }
+        }
+        return ip;
     }
 
 }

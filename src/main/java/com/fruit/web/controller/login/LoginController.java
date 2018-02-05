@@ -3,6 +3,7 @@ package com.fruit.web.controller.login;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.BusinessUser;
 import com.fruit.web.util.Constant;
+import com.fruit.web.util.HttpUtils;
 import com.fruit.web.util.VerifyCodeUtils;
 import com.jfinal.aop.Before;
 import com.jfinal.ext2.kit.RandomKit;
@@ -45,7 +46,8 @@ public class LoginController extends BaseController {
             if (user != null) {
                 // 保存ip
                 HttpServletRequest request = getRequest();
-                String ip = getRequestIp(request);
+
+                String ip = HttpUtils.getRequestIp(request);
                 setSessionAttr(Constant.SESSION_IP, ip);
 
                 // 保存uId
@@ -62,6 +64,7 @@ public class LoginController extends BaseController {
                 user.setIp(ip);
                 user.setSequence(sequence);
                 user.setUpdateTime(new Date());
+                user.setLastLoginTime(new Date());
                 user.update();
 
                 log.info("----------session获取jsessionid为" + getSession().getId() + "----------");
@@ -74,37 +77,6 @@ public class LoginController extends BaseController {
             renderErrorText("请填写用户名、密码");
             return;
         }
-    }
-
-    /**
-     * 获取用户ip
-     *
-     * @param request
-     * @return
-     */
-    private String getRequestIp(HttpServletRequest request) {
-        String remoteAddr = request.getRemoteAddr();
-        String forwarded = request.getHeader("X-Forwarded-For");
-        String realIp = request.getHeader("X-Real-IP");
-
-        String ip = null;
-        if (realIp == null) {
-            if (forwarded == null) {
-                ip = remoteAddr;
-            } else {
-                ip = remoteAddr + "/" + forwarded.split(",")[0];
-            }
-        } else {
-            if (realIp.equals(forwarded)) {
-                ip = realIp;
-            } else {
-                if (forwarded != null) {
-                    forwarded = forwarded.split(",")[0];
-                }
-                ip = realIp + "/" + forwarded;
-            }
-        }
-        return ip;
     }
 
     /**
