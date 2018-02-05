@@ -354,7 +354,9 @@ public class OrderController extends BaseController {
         renderJson(map);
     }
 
-    // HashMap的value降序
+    /**
+     * HashMap的value降序
+     */
     public static List<Map.Entry<String, List<Order>>> hashMapperDesc(Map map) {
         List<Map.Entry<String, List<Order>>> list = new ArrayList<Map.Entry<String, List<Order>>>(map.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<String, List<Order>>>() {

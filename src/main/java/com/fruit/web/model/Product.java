@@ -15,7 +15,7 @@ public class Product extends BaseProduct<Product> {
 	public static final int STATUS_USE = 1;
 	public static final int STATUS_UNUSED = 0;
 	public static final int STATUS_DELETE = -1;
-	private static final String PRODUCT_LIST_SELECT = "p.id,p.img,p.name,p.measure_unit,ps.id standard_id,ps.name standard_name,ps.sub_title,p.week_sell_num,ps.original_price,ps.sell_price";
+	private static final String PRODUCT_LIST_SELECT = "p.id,p.img,p.name,p.measure_unit,p.country,ps.id standard_id,ps.name standard_name,ps.sub_title,p.week_sell_num,ps.original_price,ps.sell_price";
 
 	/**
 	 * 按照周销量排行，获取N条数据
@@ -24,9 +24,10 @@ public class Product extends BaseProduct<Product> {
 	public List<Product> listBuyNum(int pageSize, int pageNum) {
 		int start = pageSize * (pageNum - 1);
 		StringBuilder sql = new StringBuilder();
+		// 优先取默认规格，如果没设置默认规格，按照创建时间取第一个，则此处的limit防止mysql忽略order by
 		sql.append("SELECT ").append(PRODUCT_LIST_SELECT).append(" ")
 			.append("FROM b_product p JOIN (")
-			.append("SELECT * FROM b_product_standard WHERE `status`=? ORDER BY is_default DESC,create_time LIMIT 100000000")// 优先取默认规格，如果没设置默认规格，按照创建时间取第一个，则此处的limit防止mysql忽略order by
+			.append("SELECT * FROM b_product_standard WHERE `status`=? ORDER BY is_default DESC,create_time LIMIT 100000000")
 			.append(") ps ON (p.id = ps.product_id)")
 			.append("WHERE p.`status`=? ")
 			.append("GROUP BY p.id ")
