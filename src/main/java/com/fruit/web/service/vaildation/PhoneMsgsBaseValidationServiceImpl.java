@@ -14,7 +14,7 @@ public class PhoneMsgsBaseValidationServiceImpl extends BaseValidationService {
     @Override
     public String createVerifyCode(HttpServletRequest request) {
         // TODO 调用短信接口发送短信并添加验证码到session
-        request.getSession().setAttribute(Constant.LOGIN_PHONE_MSGS_VERIFY_CODE,"");
+        request.getSession().setAttribute(Constant.LOGIN_PHONE_MSGS_VERIFY_CODE,"1234");
         return null;
     }
 }

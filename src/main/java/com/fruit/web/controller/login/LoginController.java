@@ -100,13 +100,39 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 修改密码
+     * 忘记密码
      */
-    public void updateUserPassword() {
+    public void forgetPwd() {
         try {
-            boolean result = validationVerifyCode(getParaToInt("verifyCodeType"), getPara("verifyCode"));
+            boolean result = validationVerifyCode(getParaToInt("verifyCodeType"), getPara("msgValidCode"));
             if (!result) {
                 renderErrorText("验证码错误");
+                return;
+            }
+
+            String phone = getPara("phone");
+            String password = HashKit.md5(getPara("password"));
+            BusinessUser.dao.updatePassword(phone,password);
+            renderNull();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 修改密码
+     */
+    public void updatePwd() {
+        try {
+            boolean result = validationVerifyCode(1, getPara("imgVerifyCode"));
+            if (!result) {
+                renderErrorText("图片验证码错误");
+                return;
+            }
+
+            result = validationVerifyCode(2, getPara("msgVerifyCode"));
+            if (!result) {
+                renderErrorText("短信验证码错误");
                 return;
             }
 

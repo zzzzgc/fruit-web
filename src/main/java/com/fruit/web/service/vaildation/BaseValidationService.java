@@ -26,12 +26,11 @@ public abstract class BaseValidationService {
      */
     public boolean validationVerifyCode(HttpServletRequest request,String sessionKey,String localVerifyCode){
         String serviceVerifyCode = getVerifyCode(request,sessionKey);
-//        if (localVerifyCode != null && serviceVerifyCode != null && localVerifyCode.toUpperCase().equals(serviceVerifyCode)) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-        return true;
+        if (localVerifyCode != null && serviceVerifyCode != null && localVerifyCode.toUpperCase().equals(serviceVerifyCode)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

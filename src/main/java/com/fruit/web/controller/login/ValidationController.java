@@ -30,10 +30,9 @@ public class ValidationController extends BaseController {
      * @return 无
      */
     public void createPhoneSmsVerifyCode() {
-        renderText(VerifyCodeFactory.getPhoneMsgType().createVerifyCode(getRequest()));
+        VerifyCodeFactory.getPhoneMsgType().createVerifyCode(getRequest());
+        renderNull();
     }
-
-
 
 
 }
