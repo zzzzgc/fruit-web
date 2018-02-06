@@ -2,6 +2,7 @@ package com.fruit.web.base;
 
 import com.fruit.web.controller.*;
 import com.fruit.web.controller.login.LoginController;
+import com.fruit.web.controller.login.ValidationController;
 import com.fruit.web.controller.order.OrderController;
 import com.fruit.web.controller.person.AuthIdentityController;
 import com.fruit.web.controller.person.BusinessInfoController;
@@ -45,8 +46,9 @@ public class JFConfig extends JFinalConfig {
 		me.add("/cart", ProductCartController.class);
 		me.add("/login", LoginController.class);
 		me.add("/person", PersonController.class);
-		me.add("authIdentity", AuthIdentityController.class);
+		me.add("/authIdentity", AuthIdentityController.class);
 		me.add("/businessInfo", BusinessInfoController.class);
+		me.add("/validate", ValidationController.class);
 	}
 
     @Override

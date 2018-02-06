@@ -5,10 +5,8 @@ import com.fruit.web.model.Product;
 import com.fruit.web.model.ProductImg;
 import com.fruit.web.model.ProductMarket;
 import com.fruit.web.model.ProductStandard;
-import com.fruit.web.util.Constant;
 import com.jfinal.kit.Kv;
 import org.apache.log4j.Logger;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 import java.util.ArrayList;
 

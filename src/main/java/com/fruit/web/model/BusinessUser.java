@@ -41,6 +41,18 @@ public class BusinessUser extends BaseBusinessUser<BusinessUser> {
 	}
 
 	/**
+	 * 根据用户登录名查询用户
+	 * @param phone 用户名 非空
+	 * @return
+	 */
+	public BusinessUser getUserByPhone(String phone){
+		if(StringUtils.isBlank(phone)){
+			return null;
+		}
+		return dao.findFirst("select * from b_business_user where phone = ?", phone);
+	}
+
+	/**
 	 * 保存用户（如果关联的角色不为空，会同时保存关联的角色）
 	 * @param user
 	 * @param roleIds
@@ -62,5 +74,14 @@ public class BusinessUser extends BaseBusinessUser<BusinessUser> {
 				return true;
 			}
 		});
+	}
+
+	/**
+	 * 修改密码
+	 * @param phone 手机号码
+	 * @param hashPassword MD5加密后的密码
+	 */
+	public void updatePassword(String phone,String hashPassword){
+		dao.find("UPDATE b_business_user b SET b.pass = ? WHERE b.phone = ?", hashPassword, phone);
 	}
 }
