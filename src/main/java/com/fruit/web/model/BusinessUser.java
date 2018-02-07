@@ -13,75 +13,81 @@ import java.util.Date;
  */
 @SuppressWarnings("serial")
 public class BusinessUser extends BaseBusinessUser<BusinessUser> {
-	public static final BusinessUser dao = new BusinessUser().dao();
+    public static final BusinessUser dao = new BusinessUser().dao();
 
-	/**
-	 * 根据用户手机号码+密码查询用户（用于验证登录）
-	 * @param phone 手机号 非空
-	 * @param password 密码 非空
-	 * @return
-	 */
-	public BusinessUser getUser(String phone, String password){
-		if(StringUtils.isAllBlank(phone, password)){
-			return null;
-		}
-		return dao.findFirst("select * from b_business_user where phone = ? and pass = ?", phone, password);
-	}
+    /**
+     * 根据用户手机号码+密码查询用户（用于验证登录）
+     *
+     * @param phone    手机号 非空
+     * @param password 密码 非空
+     * @return
+     */
+    public BusinessUser getUser(String phone, String password) {
+        if (StringUtils.isAllBlank(phone, password)) {
+            return null;
+        }
+        return dao.findFirst("select * from b_business_user where phone = ? and pass = ?", phone, password);
+    }
 
-	/**
-	 * 根据用户登录名查询用户
-	 * @param userName 用户名 非空
-	 * @return
-	 */
-	public BusinessUser getUser(String userName){
-		if(StringUtils.isBlank(userName)){
-			return null;
-		}
-		return dao.findFirst("select * from b_business_user where name = ?", userName);
-	}
+    /**
+     * 根据用户登录名查询用户
+     *
+     * @param userName 用户名 非空
+     * @return
+     */
+    public BusinessUser getUser(String userName) {
+        if (StringUtils.isBlank(userName)) {
+            return null;
+        }
+        return dao.findFirst("select * from b_business_user where name = ?", userName);
+    }
 
-	/**
-	 * 根据用户登录名查询用户
-	 * @param phone 用户名 非空
-	 * @return
-	 */
-	public BusinessUser getUserByPhone(String phone){
-		if(StringUtils.isBlank(phone)){
-			return null;
-		}
-		return dao.findFirst("select * from b_business_user where phone = ?", phone);
-	}
+    /**
+     * 根据用户登录名查询用户
+     *
+     * @param phone 用户名 非空
+     * @return
+     */
+    public BusinessUser getUserByPhone(String phone) {
+        if (StringUtils.isBlank(phone)) {
+            return null;
+        }
+        return dao.findFirst("select * from b_business_user where phone = ?", phone);
+    }
 
-	/**
-	 * 保存用户（如果关联的角色不为空，会同时保存关联的角色）
-	 * @param user
-	 * @param roleIds
-	 */
-	public boolean save(BusinessUser user, String[] roleIds) {
-		// 开启事务控制 原子性
-		return Db.tx(new IAtom() {
-			@Override
-			public boolean run() throws SQLException {
-				if(user.getId() == null){
-					user.setCreateTime(new Date());
-				}
-				user.setUpdateTime(new Date());
-				if(user.getId() == null){
-					user.save();//保存用户
-				}else{
-					user.update();//更新用户
-				}
-				return true;
-			}
-		});
-	}
+    /**
+     * 保存用户（如果关联的角色不为空，会同时保存关联的角色）
+     *
+     * @param user
+     * @param roleIds
+     */
+    public boolean save(BusinessUser user, String[] roleIds) {
+        // 开启事务控制 原子性
+        return Db.tx(new IAtom() {
+            @Override
+            public boolean run() throws SQLException {
+                if (user.getId() == null) {
+                    user.setCreateTime(new Date());
+                }
+                user.setUpdateTime(new Date());
+                if (user.getId() == null) {
+                    user.save();//保存用户
+                } else {
+                    user.update();//更新用户
+                }
+                return true;
+            }
+        });
+    }
 
-	/**
-	 * 修改密码
-	 * @param phone 手机号码
-	 * @param hashPassword MD5加密后的密码
-	 */
-	public void updatePassword(String phone,String hashPassword){
-		dao.find("UPDATE b_business_user b SET b.pass = ? WHERE b.phone = ?", hashPassword, phone);
-	}
+    /**
+     * 修改密码
+     * @param phone        手机号码
+     * @param hashPassword MD5加密后的密码
+     */
+    public void updatePassword(String phone, String hashPassword) {
+        BusinessUser user = dao.getUserByPhone(phone);
+        user.setPass(hashPassword);
+        user.update();
+    }
 }

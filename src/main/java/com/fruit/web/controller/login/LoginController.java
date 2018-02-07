@@ -150,7 +150,7 @@ public class LoginController extends BaseController {
      */
     public void register() {
         /*验证码拦截*/
-        boolean verifyCode = validationVerifyCode(getParaToInt("verifyCodeType"), getPara("verifyCode"));
+        boolean verifyCode = validationVerifyCode(getParaToInt("msgVerifyCodeType"), getPara("msgVerifyCode"));
         if (!verifyCode) {
             renderErrorText("验证码错误");
             return;
