@@ -7,6 +7,7 @@ import com.fruit.web.controller.order.OrderController;
 import com.fruit.web.controller.person.AuthIdentityController;
 import com.fruit.web.controller.person.BusinessInfoController;
 import com.fruit.web.controller.person.PersonController;
+import com.fruit.web.controller.wechat.WecharContrller;
 import com.fruit.web.model.BusinessInfo;
 import com.fruit.web.model._MappingKit;
 import com.jfinal.config.*;
@@ -49,6 +50,7 @@ public class JFConfig extends JFinalConfig {
 		me.add("/authIdentity", AuthIdentityController.class);
 		me.add("/businessInfo", BusinessInfoController.class);
 		me.add("/validate", ValidationController.class);
+		me.add("/wecharPay", WecharContrller.class);
 	}
 
     @Override

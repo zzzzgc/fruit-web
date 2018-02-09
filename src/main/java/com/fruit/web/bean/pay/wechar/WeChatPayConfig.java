@@ -3,18 +3,21 @@ package com.fruit.web.bean.pay.wechar;
 import com.fruit.web.model.Param;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.kit.HashKit;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * 微信公众号支付请求实体
+ * 微信公众号支付请求配置实体
  *
  * @author ZGC
  * @date Created in 15:08 2017/12/25
  */
-public class WeChatJsPay {
+public class WeChatPayConfig extends BaseWechatConfig {
     /**
      * 公众账号ID
      */
@@ -23,6 +26,10 @@ public class WeChatJsPay {
      * 商户号
      */
     private String mchId;
+    /**
+     * 商品描述
+     */
+    private String body;
     /**
      * 设备号
      */
@@ -39,10 +46,6 @@ public class WeChatJsPay {
      * 签名类型
      */
     private String signType;
-    /**
-     * 商品描述
-     */
-    private String body;
     /**
      * 商品详情
      */
@@ -104,11 +107,11 @@ public class WeChatJsPay {
      */
     private String sceneInfo;
 
-    public WeChatJsPay(String body, String outTradeNo, String totalFee) {
-        this.body = body;
+    public WeChatPayConfig(String outTradeNo, long totalFee) {
         this.outTradeNo = outTradeNo;
-        this.totalFee = totalFee;
+        this.totalFee = totalFee + "";
     }
+
 
     public String getAppid() {
         return appid;
@@ -124,6 +127,14 @@ public class WeChatJsPay {
 
     public void setMchId(String mchId) {
         this.mchId = mchId;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public String getDeviceInfo() {
@@ -156,14 +167,6 @@ public class WeChatJsPay {
 
     public void setSignType(String signType) {
         this.signType = signType;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
     }
 
     public String getDetail() {
@@ -288,14 +291,14 @@ public class WeChatJsPay {
 
     @Override
     public String toString() {
-        return "WeCharHtml5Pay{" +
+        return "WeChatPayConfig{" +
                 "appid='" + appid + '\'' +
                 ", mchId='" + mchId + '\'' +
+                ", body='" + body + '\'' +
                 ", deviceInfo='" + deviceInfo + '\'' +
                 ", nonceStr='" + nonceStr + '\'' +
                 ", sign='" + sign + '\'' +
                 ", signType='" + signType + '\'' +
-                ", body='" + body + '\'' +
                 ", detail='" + detail + '\'' +
                 ", attach='" + attach + '\'' +
                 ", outTradeNo='" + outTradeNo + '\'' +
@@ -315,25 +318,32 @@ public class WeChatJsPay {
     }
 
     /**
-     * 获取请求参数,需要确保body\totalFee\outTradeNo\openId不为空
+     * 获取请求参数,需要确保totalFee\outTradeNo不为空
      *
      * @return
      */
-    public String getSendStr() throws Exception {
+    public String getPayParam() {
+
+        if (!StringUtils.isNotBlank(outTradeNo)) {
+            throw new RuntimeException("outTradeNo为空");
+        }
+        if (!StringUtils.isNotBlank(totalFee)) {
+            throw new RuntimeException("totalFee为空");
+        }
         Param paramDao = Param.dao;
-        this.appid = paramDao.getParam("weChar_appId");
-        this.mchId = paramDao.getParam("weChar_mchId");
+
+        /*设置公共参数*/
+        this.appid = getAppIdBySuper();
+        this.mchId = getMchIdBySuper();
+        this.body = getBODYBySuper();
+        this.notifyUrl = getNotifyUrlBySuper();
+        this.signType = getSignTypeBySuper();
         this.nonceStr = UUID.randomUUID().toString();
         this.sign = null;
-        //this.body            =null;
+        //this.spbillCreateIp = paramDao.getParam("wechat_spbillCreateIp");
         //this.totalFee        =null;
         //this.outTradeNo      =null;
-        this.body = "JSAPI支付测试";
-        this.spbillCreateIp = paramDao.getParam("weChar_spbillCreateIp");
-        this.notifyUrl = paramDao.getParam("weChar_JsApiPay_notifyUrl");
-        this.tradeType = paramDao.getParam("weChar_tradeType");
-
-
+//        this.tradeType = null;
 //        this.goodsTag        =null;
 //        this.productId       =null;
 //        this.limitPay        =null;
@@ -344,30 +354,14 @@ public class WeChatJsPay {
 //        this.attach          =null;
 //        this.detail          =null;
 //        this.deviceInfo      =null;
-        this.signType = paramDao.getParam("weChar_signType");
 //        this.timeStart       =null;
 //        this.timeExpire      =null;
 
-        HashMap<String, String> map = new HashMap<>(30);
-        Class<? extends WeChatJsPay> thisClass = this.getClass();
-        Field[] fields = thisClass.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Object obj = field.get(this);
-            if (obj != null) {
-                map.put(field.getName(), obj.toString());
-            }
-        }
-        String param = ConvertUtils.map2KeyValueString(map);
-
-        String key = "969f2f734243f654643ec4800c279962";
-        param += "&key=" + key;
-
+        Map<String, String> map = ConvertUtils.javaBean2Map(this);
+        String param = ConvertUtils.map2SimpleXmlStr(map) + "&key=" + getKEYBySuper();
         String sign = HashKit.md5(param).toUpperCase();
         map.put("sign", sign);
-
-        String xmlStr = ConvertUtils.map2SimpleXmlStr(map);
-        return xmlStr;
+        return ConvertUtils.map2SimpleXmlStr(map);
     }
 
     public void getStr(Class zlass) {

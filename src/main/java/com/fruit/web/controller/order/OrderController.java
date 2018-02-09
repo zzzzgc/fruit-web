@@ -3,7 +3,7 @@ package com.fruit.web.controller.order;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.model.*;
-import com.fruit.web.service.PayService;
+import com.fruit.web.service.pay.PayService1;
 import com.fruit.web.util.Constant;
 import com.fruit.web.util.ConvertUtils;
 import com.jfinal.aop.Before;
@@ -234,13 +234,13 @@ public class OrderController extends BaseController {
 
         if (orders != null && orders.size() > 0) {
             long money = orders.get(0).getPayNeedMoney().longValue();
-            String prepay_id = new PayService().wechatJsApiPay("嘻果商城", orderId, money);
+            String prepay_id = new PayService1().wechatJsApiPay("嘻果商城", orderId, money);
             if (prepay_id != null) {
                 Param paramDao = Param.dao;
-                String appId = paramDao.getParam("weChar_appId");
+                String appId = paramDao.getParam("wechat_appId");
                 String timeStamp = System.currentTimeMillis() + "";
                 String nonceStr = RandomKit.randomStr();
-                String signType = paramDao.getParam("weChar_tradeType");
+                String signType = paramDao.getParam("wechat_tradeType");
                 HashMap<String, String> paramMap = new HashMap<>(6);
                 paramMap.put("appId", appId);
                 paramMap.put("prepay_id", prepay_id);

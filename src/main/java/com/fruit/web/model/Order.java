@@ -3,6 +3,7 @@ package com.fruit.web.model;
 import com.fruit.web.model.base.BaseOrder;
 import com.jfinal.plugin.activerecord.Db;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -28,6 +29,54 @@ public class Order extends BaseOrder<Order> {
 		sql.append(") ");
 		sql.append("order by od.create_time desc");
 		return find(sql.toString(),uid);
+	}
+
+	/**
+	 * 获取待支付金额
+	 * @param orderId
+	 * @return
+	 */
+	public BigDecimal getOrderPayNeedMoney (String orderId) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT pay_need_money FROM b_order WHERE order_id = ?");
+		 Order order = dao.findFirst(sql.toString(), orderId);
+		BigDecimal payNeedMoney = order.getPayNeedMoney();
+		return payNeedMoney;
+	}
+
+	/**
+	 * 获取订单信息
+	 * @param orderId
+	 * @return
+	 */
+	public Order getOrder (String orderId) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT\n" +
+				"b.id,\n" +
+				"b.order_id,\n" +
+				"b.u_id,\n" +
+				"b.order_status,\n" +
+				"b.pay_status,\n" +
+				"b.pay_need_money,\n" +
+				"b.pay_total_money,\n" +
+				"b.pay_callback,\n" +
+				"b.pay_success,\n" +
+				"b.buy_user_name,\n" +
+				"b.buy_phone,\n" +
+				"b.buy_address,\n" +
+				"b.delivery_type,\n" +
+				"b.pay_time,\n" +
+				"b.refund_status,\n" +
+				"b.delivery_time,\n" +
+				"b.refund_time,\n" +
+				"b.create_time,\n" +
+				"b.update_time\n" +
+				"FROM\n" +
+				"b_order AS b\n" +
+				"WHERE\n" +
+				"b.order_id = ?\n" );
+		Order order = dao.findFirst(sql.toString(), orderId);
+		return order;
 	}
 
 	// 根据订单号获取我的订单数据
