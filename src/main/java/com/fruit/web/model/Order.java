@@ -16,12 +16,12 @@ public class Order extends BaseOrder<Order> {
 	// 获取我的订单数据
 	public List<Order> getOrderListByStatus(String uid, String status){
 		StringBuilder sql = new StringBuilder();
-		sql.append("select od.id,od.order_id , od.create_time , p.`name`,pi.img_url, ");
+		sql.append("select od.id,od.order_id , od.create_time , p.`name`,p.img as img_url, ");
 		sql.append("if(p.country='中国','中国','进口') as country ,od.num, ");
 		sql.append("od.buy_remark,if(p.country='中国',false,false) `check`,o.pay_status ispay, ");
 		sql.append("od.sell_price,od.product_standard_name ,o.`order_status`,od.product_id,od.product_standard_id ");
-		sql.append("from b_product p,b_product_standard ps,b_order_detail od,b_product_img pi,b_order o ");
-		sql.append("where p.id=ps.product_id and p.id=od.product_id and pi.product_id=od.product_id ");
+		sql.append("from b_product p,b_product_standard ps,b_order_detail od,b_order o ");
+		sql.append("where p.id=ps.product_id and p.id=od.product_id ");
 		sql.append("and od.product_standard_id=ps.id  and o.order_id=od.order_id ");
 		sql.append("and o.u_id=? ");
 		sql.append("and o.`order_status` in (");
