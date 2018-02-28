@@ -262,7 +262,7 @@ public class OrderController extends BaseController {
 
                 for (OrderDetail orderDetail : orderDetails) {
                     BigDecimal sellPrice = orderDetail.getSellPrice();
-                    price = price.add(sellPrice);
+                    price = price.add(sellPrice.multiply(new BigDecimal(orderDetail.getNum())));
                 }
 
                 orderTotalPrice = orderTotalPrice.add(price);
