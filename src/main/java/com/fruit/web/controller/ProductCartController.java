@@ -9,9 +9,6 @@ import com.fruit.web.model.CartProduct;
 import com.fruit.web.model.Product;
 import com.fruit.web.util.Constant;
 import com.jfinal.aop.Before;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.IAtom;
-import com.jfinal.plugin.activerecord.tx.Tx;
 import org.apache.log4j.Logger;
 
 import java.util.List;
