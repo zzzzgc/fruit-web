@@ -13,7 +13,9 @@ import com.jfinal.plugin.activerecord.tx.Tx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 
 public class LoginController extends BaseController {
@@ -26,14 +28,13 @@ public class LoginController extends BaseController {
     @Before(Tx.class)
     public void auth() {
 
-
         /*验证码拦截*/
         boolean verifyCode = validationVerifyCode(getParaToInt("verifyCodeType"), getPara("verifyCode"));
         if (!verifyCode) {
             renderErrorText("验证码错误");
             return;
         }
-
+        boolean rememberPW = getParaToBoolean("rememberPW");
         String phone = getPara("phone");
         String password = StringUtils.isNotBlank(getPara("password")) ? HashKit.md5(getPara("password")) : getPara("password");
 
@@ -57,6 +58,16 @@ public class LoginController extends BaseController {
                 //保存token
                 String token = RandomKit.randomMD5Str();
                 setSessionAttr(Constant.SESSION_TOKEN, token);
+
+                if (rememberPW){
+                    // 设置cookie过期时间为7天后
+                    System.out.println(getSession().getMaxInactiveInterval());
+                    HttpSession session = getSession();
+                    session.setMaxInactiveInterval(604800);
+                    setCookie("JSESSIONID",session.getId(),604800);
+                    Cookie jsessionid = getCookieObject("JSESSIONID");
+                    jsessionid.setMaxAge(604800);
+                }
 
                 user.setIp(ip);
                 user.setSequence(sequence);
