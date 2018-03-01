@@ -256,16 +256,31 @@ public class OrderController extends BaseController {
             BigDecimal orderTotalPrice = new BigDecimal(0);
 
             String[] orderIds = getParaValues("orderIds");
+
+            StringBuilder sb = new StringBuilder(100);
+            for (String orderId : orderIds) {
+                sb.append(orderId +",");
+            }
+            System.out.println("获取的orderId"+sb);
+            System.out.println("------------------------------start--------------------------------------");
+            // 遍历出每一个订单
             for (String orderId : orderIds) {
                 List<OrderDetail> orderDetails = OrderDetail.dao.getOrderDetails(orderId);
                 BigDecimal price = new BigDecimal(0.00);
-
+                System.out.println();
+                System.out.println("---------------------------------");
+                // 遍历出每一个商品
                 for (OrderDetail orderDetail : orderDetails) {
                     BigDecimal sellPrice = orderDetail.getSellPrice();
                     price = price.add(sellPrice.multiply(new BigDecimal(orderDetail.getNum())));
+                    System.out.println("orderId:"+orderId+" 的商品数量: "+orderDetail.getNum()+",单价: "+sellPrice);
                 }
-
+                System.out.println("---------------------------------");
+                System.out.println("orderId总价格: "+price);
                 orderTotalPrice = orderTotalPrice.add(price);
+                System.out.println("orderTotalPrice累加为: "+orderTotalPrice);
+
+                System.out.println("");
 
                 HashMap<String, Object> productsMap = new HashMap<>(3);
                 productsMap.put("products", orderDetails);
@@ -273,10 +288,13 @@ public class OrderController extends BaseController {
                 productsMap.put("totalPrice", price);
                 productsInfo.add(productsMap);
             }
+            System.out.println("------------------------------end--------------------------------------");
 
             HashMap<String, Object> responseMap = new HashMap<>(2);
             responseMap.put("productsInfo", productsInfo);
             responseMap.put("orderTotalPrice", orderTotalPrice);
+
+            System.out.println(orderIds+"商品总价为:" + orderTotalPrice);
 
             renderJson(responseMap);
         } catch (Exception e) {
