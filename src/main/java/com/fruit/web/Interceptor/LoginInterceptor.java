@@ -24,64 +24,71 @@ public class LoginInterceptor implements Interceptor {
         log.info("----------登录拦截器----------");
         Controller controller = inv.getController();
         try {
+            /*
+             * uid校验拦截
+             */
             int uid = controller.getSessionAttr(Constant.SESSION_UID) == null ? 0 : controller.getSessionAttr(Constant.SESSION_UID);
-
-            if (uid != 0) {
-                /*
-                token校验拦截
-                 */
-                String token = controller.getCookie(Constant.COOKIE_TOKEN);
-                String sessionToken = controller.getSessionAttr(Constant.SESSION_TOKEN);
-                System.out.println("SessionToken:" + sessionToken + ",LocalToken:" + token);
-                if (!StringUtils.isNotBlank(sessionToken) || !StringUtils.isNotBlank(token) || !token.equals(sessionToken)) {
-                    //微信前端的拦截器会拦截401并跳转到login页面的
-                    controller.render(new ErrorTextRender(401, "toKen校验失败"));
-                    log.info("用户uid: " + uid + " ,token校验失败,用户token: " + sessionToken + " ,当前token: " + token);
-                    //清空cookie中的token
-                    controller.removeCookie(Constant.SESSION_TOKEN);
-                    return;
-                }
-
-                /*
-                sequence校验拦截
-                 */
-                String sequence = controller.getSessionAttr(Constant.SESSION_SEQUENCE);
-                BusinessUser dbUser = BusinessUser.dao.findByIdLoadColumns(uid, "sequence");
-                String dbSequence = dbUser == null ? null : dbUser.getSequence();
-                // sequence防止同时登陆验证拦截
-                if (!StringUtils.isNotBlank(sequence) || dbSequence == null || !dbSequence.equals(sequence)) {
-                    //微信前端的拦截器会拦截401并跳转到login页面的
-                    log.info("用户uid: " + uid + " ,sequence校验失败,用户最新登录sequence: " + dbUser + " ,当前sequence: " + sequence + ",不排除为被他人登录的情况.警告用户确认并提醒他修改密码,用手机和邮箱的方式修改");
-                    //清空cookie中的token
-                    controller.removeCookie(Constant.SESSION_TOKEN);
-                    return;
-                }
-
-                /*
-                ip校验拦截
-                 */
-                String ip = controller.getSessionAttr(Constant.SESSION_IP);
-                String localIp = HttpUtils.getRequestIp(controller.getRequest());
-                if (!StringUtils.isNotBlank(ip) || !StringUtils.isNotBlank(localIp) || !ip.equals(localIp)) {
-                    //微信前端的拦截器会拦截401并跳转到login页面的
-                    controller.render(new ErrorTextRender(401, "ip校验失败"));
-                    log.info("用户uid: " + uid + " ,ip校验失败,用户登录ip: " + ip + " ,请求ip: " + localIp);
-                    //清空cookie中的token
-                    controller.removeCookie(Constant.COOKIE_TOKEN);
-                    controller.removeCookie("JSESSIONID");
-                    return;
-                }
-
-                inv.invoke();
-            } else {
-                //微信前端的拦截器会拦截401并跳转到login页面的
-                controller.render(new ErrorTextRender(401, "未登录"));
+            if (uid == 0) {
                 log.info("uid为空");
                 //清空cookie中的token
                 controller.removeCookie(Constant.COOKIE_TOKEN);
+                errorTextRender(controller,"uid校验失败");
+                return;
             }
+
+            /*
+            token校验拦截
+             */
+            String token = controller.getCookie(Constant.COOKIE_TOKEN);
+            String sessionToken = controller.getSessionAttr(Constant.SESSION_TOKEN);
+            System.out.println("SessionToken:" + sessionToken + ",LocalToken:" + token);
+            if (!StringUtils.isNotBlank(sessionToken) || !StringUtils.isNotBlank(token) || !token.equals(sessionToken)) {
+                log.info("用户uid: " + uid + " ,token校验失败,用户token: " + sessionToken + " ,当前token: " + token);
+                //清空cookie中的token
+                controller.removeCookie(Constant.SESSION_TOKEN);
+                //微信前端的拦截器会拦截401并跳转到login页面的
+                errorTextRender(controller,"token校验失败");
+                return;
+            }
+
+            /*
+            sequence校验拦截
+             */
+            String sequence = controller.getSessionAttr(Constant.SESSION_SEQUENCE);
+            BusinessUser dbUser = BusinessUser.dao.findByIdLoadColumns(uid, "sequence");
+            String dbSequence = dbUser == null ? null : dbUser.getSequence();
+            // sequence防止同时登陆验证拦截
+            if (!StringUtils.isNotBlank(sequence) || dbSequence == null || !dbSequence.equals(sequence)) {
+                log.info("用户uid: " + uid + " ,sequence校验失败,用户最新登录sequence: " + dbUser + " ,当前sequence: " + sequence + ",不排除为被他人登录的情况.警告用户确认并提醒他修改密码,用手机和邮箱的方式修改");
+                //清空cookie中的token
+                controller.removeCookie(Constant.SESSION_TOKEN);
+                //微信前端的拦截器会拦截401并跳转到login页面的
+                errorTextRender(controller,"sequence校验失败");
+                return;
+            }
+
+            /*
+            ip校验拦截
+             */
+            String ip = controller.getSessionAttr(Constant.SESSION_IP);
+            String localIp = HttpUtils.getRequestIp(controller.getRequest());
+            if (!StringUtils.isNotBlank(ip) || !StringUtils.isNotBlank(localIp) || !ip.equals(localIp)) {
+                log.info("用户uid: " + uid + " ,ip校验失败,用户登录ip: " + ip + " ,请求ip: " + localIp);
+                //清空cookie中的token
+                controller.removeCookie(Constant.COOKIE_TOKEN);
+                controller.removeCookie("JSESSIONID");
+                //微信前端的拦截器会拦截401并跳转到login页面的
+                errorTextRender(controller,"ip校验失败");
+                return;
+            }
+
+            inv.invoke();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void errorTextRender(Controller controller,String errorText) {
+        controller.render(new ErrorTextRender(401, errorText));
     }
 }

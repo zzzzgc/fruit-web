@@ -19,7 +19,7 @@ public class BusinessAuth extends BaseBusinessAuth<BusinessAuth> {
 		sb.append("select ba.id,ba.legal_person_name,ba.identity, ");
 		sb.append("ba.bank_account,ba.business_license,auth_type, ");
 		sb.append("ba.img_identity_front,ba.img_identity_reverse, ");
-		sb.append("ba.img_license,ba.img_online_shop ");
+		sb.append("ba.img_license,ba.img_online_shop,ba.audit ");
 		sb.append("from b_business_auth ba where ba.u_id=? ");
 		if(authType==1){
 			sb.append("and ba.auth_type=1 ");

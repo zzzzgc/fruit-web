@@ -1,5 +1,6 @@
 package com.fruit.web.controller.order;
 
+import com.fruit.web.Interceptor.AuthInterceptor;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.bean.pay.wechar.WeChatPayConfig;
@@ -35,7 +36,7 @@ public class OrderController extends BaseController {
     /**
      * 购物车生成订单(下单)
      */
-    @Before(Tx.class)
+    @Before({AuthInterceptor.class, Tx.class})
     public void createOrder() {
         System.out.println("------------购物车批量生成订单-----------------");
 //        boolean tx = Db.tx(new IAtom() {
@@ -138,14 +139,13 @@ public class OrderController extends BaseController {
     /**
      * 直接创建订单(下单)
      */
-    @Before(Tx.class)
+    @Before({AuthInterceptor.class,Tx.class})
     public void directCreateOrder() {
         System.out.println("------------单笔(直接)生成订单-----------------");
         //生成唯一有序id
         String orderId;
         orderId = getOrderId();
         Integer uid = getSessionAttr(Constant.SESSION_UID);
-
         try {
             int standardId = getParaToInt("standard_id");
             if (standardId != 0) {
@@ -202,6 +202,10 @@ public class OrderController extends BaseController {
 
     }
 
+    /**
+     * 订单id生成规则
+     * @return 新的订单id
+     */
     private String getOrderId() {
         String orderId;
         synchronized (OrderController.class) {

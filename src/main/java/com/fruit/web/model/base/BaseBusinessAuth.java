@@ -65,6 +65,14 @@ public abstract class BaseBusinessAuth<M extends BaseBusinessAuth<M>> extends Mo
 		return getStr("auth_type");
 	}
 
+	public void setAudit(java.lang.Integer audit) {
+		set("audit", audit);
+	}
+
+	public java.lang.Integer getAudit() {
+		return getInt("audit");
+	}
+
 	public void setImgIdentityFront(java.lang.String imgIdentityFront) {
 		set("img_identity_front", imgIdentityFront);
 	}
