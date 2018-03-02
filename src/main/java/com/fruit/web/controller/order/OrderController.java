@@ -239,12 +239,19 @@ public class OrderController extends BaseController {
             return;
         }
         BusinessInfo businessInfo = businessInfoByUid.get(0);
-        String buy_address = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" +businessInfo.getAddressDetail();
-        String buy_user_name = businessInfo.getBusinessContacts();
-        String buy_phone = businessInfo.getPhone();
-        Integer delivery_type = businessInfo.getShipmentsType();
-        //String delivery_time =
+        String buyAddress = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" +businessInfo.getAddressDetail();
+        String buyUserName = businessInfo.getBusinessContacts();
+        String buyPhone = businessInfo.getPhone();
+        Integer deliveryType = businessInfo.getShipmentsType();
+        String deliveryTime = "次日 8点 至 10点";
 
+        HashMap<String, String> buy_info = new HashMap<>(5);
+        buy_info.put("buy_address",buyAddress);
+        buy_info.put("buy_user_name",buyUserName);
+        buy_info.put("buy_phone",buyPhone);
+        buy_info.put("delivery_type",deliveryType.toString());
+        buy_info.put("delivery_time",deliveryTime);
+        renderJson(buy_info);
     }
 
     /**
