@@ -15,7 +15,6 @@ public enum BusinessShipmentsType {
      * 物流
      */
     LOGISTICS(2),
-
     /**
      * 自提
      */

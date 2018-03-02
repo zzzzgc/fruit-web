@@ -56,7 +56,7 @@ public class AuthInterceptor implements Interceptor {
         List<BusinessAuth> businessAuthByUid = BusinessAuth.dao.getBusinessAuthByUid(uid, BusinessInfoType.PHYSICAL_STORE_AUTH.getStatus());
         // 实体店认证
         if (businessAuthByUid == null || businessAuthByUid.size() < 1 || businessAuthByUid.get(0) == null) {
-            businessAuthByUid = BusinessAuth.dao.getBusinessAuthByUid(uid, BusinessInfoType.online_STORE_AUTH.getStatus());
+            businessAuthByUid = BusinessAuth.dao.getBusinessAuthByUid(uid, BusinessInfoType.ONLINE_STORE_AUTH.getStatus());
             // 网店认证
             if (businessAuthByUid == null || businessAuthByUid.size() < 1 || businessAuthByUid.get(0) == null) {
                 errorTextRender(controller,"账户未认证");

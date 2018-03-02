@@ -229,6 +229,14 @@ public class OrderController extends BaseController {
     }
 
     /**
+     * 获取个人信息和物流信息
+     */
+    public void getBuyInfo() {
+
+
+    }
+
+    /**
      * 生成Js预支付订单
      */
     public void createPayOrderByJsApi() {

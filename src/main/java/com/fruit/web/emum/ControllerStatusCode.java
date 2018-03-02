@@ -1,5 +1,8 @@
 package com.fruit.web.emum;
 
+/**
+ * 控制台返回的状态码(未来待扩展)
+ */
 public enum ControllerStatusCode {
     /**
      * 需要登录
