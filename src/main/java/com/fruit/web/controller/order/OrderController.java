@@ -232,8 +232,26 @@ public class OrderController extends BaseController {
      * 获取个人信息和物流信息
      */
     public void getBuyInfo() {
+        Integer uid = getSessionAttr(Constant.SESSION_UID);
+        List<BusinessInfo> businessInfoByUid = BusinessInfo.dao.getBusinessInfoByUid(uid);
+        if (businessInfoByUid == null || businessInfoByUid.size() < 1 || businessInfoByUid.get(0) == null){
+            renderErrorText("账户店铺未绑定");
+            return;
+        }
+        BusinessInfo businessInfo = businessInfoByUid.get(0);
+        String buyAddress = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" +businessInfo.getAddressDetail();
+        String buyUserName = businessInfo.getBusinessContacts();
+        String buyPhone = businessInfo.getPhone();
+        Integer deliveryType = businessInfo.getShipmentsType();
+        String deliveryTime = "次日 8点 至 10点";
 
-
+        HashMap<String, String> buy_info = new HashMap<>(5);
+        buy_info.put("buy_address",buyAddress);
+        buy_info.put("buy_user_name",buyUserName);
+        buy_info.put("buy_phone",buyPhone);
+        buy_info.put("delivery_type",deliveryType.toString());
+        buy_info.put("delivery_time",deliveryTime);
+        renderJson(buy_info);
     }
 
     /**

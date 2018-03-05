@@ -2,13 +2,18 @@ package com.fruit.web.emum;
 
 public enum BusinessAuthStatus {
     /**
-     * 认证审核通过
+     * 认证审核中
      */
-    OK(1),
+    WAIT(0),
     /**
      * 认证审核未通过
      */
+    OK(1),
+    /**
+     * 认证审核通过
+     */
     OFF(2)
+
     ;
 
     Integer status;

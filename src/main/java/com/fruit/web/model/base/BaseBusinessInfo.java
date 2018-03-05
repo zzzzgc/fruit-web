@@ -81,12 +81,12 @@ public abstract class BaseBusinessInfo<M extends BaseBusinessInfo<M>> extends Mo
 		return getStr("address_shop");
 	}
 
-	public void setShipmentsType(java.lang.String shipmentsType) {
+	public void setShipmentsType(java.lang.Integer shipmentsType) {
 		set("shipments_type", shipmentsType);
 	}
 
-	public java.lang.String getShipmentsType() {
-		return getStr("shipments_type");
+	public java.lang.Integer getShipmentsType() {
+		return getInt("shipments_type");
 	}
 
 	public void setCreateTime(java.util.Date createTime) {
