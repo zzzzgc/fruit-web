@@ -2,6 +2,7 @@ package com.fruit.web.controller.person;
 
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
+import com.fruit.web.emum.BusinessShipmentsType;
 import com.fruit.web.model.BusinessInfo;
 import com.fruit.web.util.Constant;
 import com.jfinal.aop.Before;
@@ -19,7 +20,9 @@ public class BusinessInfoController extends BaseController{
     public void addBusinessInfo(){
         try {
             BusinessInfo businessInfo=getModel(BusinessInfo.class,"",true);
+            Integer shipmentType=getParaToInt("shipmentCode",0);
             Object uid=getSessionAttr(Constant.SESSION_UID);
+            businessInfo.setShipmentsType(shipmentType);
             businessInfo.setUId(Integer.parseInt(uid.toString()));
             businessInfo.setCreateTime(new Date());
             businessInfo.setUpdateTime(new Date());
@@ -36,5 +39,18 @@ public class BusinessInfoController extends BaseController{
         Object uid=getSessionAttr(Constant.SESSION_UID);
         List<BusinessInfo> businessInfoList=BusinessInfo.dao.getBusinessInfoByUid(Integer.parseInt(uid.toString()));
         renderJson(businessInfoList);
+    }
+
+    private Integer getEmum(String shipmentsType){
+        //0市场车 1物流 2自提
+        Integer shipmentCode = 0;
+        if("市场车".equals(shipmentsType)){
+            shipmentCode=BusinessShipmentsType.MARKET.getStatus();
+        } else if ("物流".equals(shipmentsType)) {
+            shipmentCode=BusinessShipmentsType.LOGISTICS.getStatus();
+        } else if ("自提".equals(shipmentsType)) {
+            shipmentCode=BusinessShipmentsType.TAKE_THEIR.getStatus();
+        }
+        return shipmentCode;
     }
 }
