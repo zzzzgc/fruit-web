@@ -1,7 +1,5 @@
 package com.fruit.web.emum;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * 物流类型
  *
@@ -33,13 +31,28 @@ public enum BusinessShipmentsType {
 
     /**
      * 根据状态获取物流类型名称
+     *
      * @param status
      * @return
      */
-    public String getShipmentsTypeName(Integer status) {
+    public static synchronized String getShipmentsTypeName(Integer status) {
         for (BusinessShipmentsType businessShipmentsType : BusinessShipmentsType.values()) {
             if (businessShipmentsType.getStatus().equals(status)) {
                 return businessShipmentsType.getShipmentsTypeName();
+            }
+        }
+        throw new RuntimeException("不存在该物流类型");
+    }
+
+    /**
+     * 根据物流类型名称获取状态
+     * @param shipmentsTypeName
+     * @return
+     */
+    public static synchronized Integer getStatus(String shipmentsTypeName) {
+        for (BusinessShipmentsType businessShipmentsType : BusinessShipmentsType.values()) {
+            if (businessShipmentsType.getShipmentsTypeName().equals(shipmentsTypeName)) {
+                return businessShipmentsType.getStatus();
             }
         }
         throw new RuntimeException("不存在该物流类型");

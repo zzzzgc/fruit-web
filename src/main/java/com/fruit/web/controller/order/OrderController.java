@@ -4,6 +4,7 @@ import com.fruit.web.Interceptor.AuthInterceptor;
 import com.fruit.web.Interceptor.LoginInterceptor;
 import com.fruit.web.base.BaseController;
 import com.fruit.web.bean.pay.wechar.WeChatPayConfig;
+import com.fruit.web.emum.BusinessShipmentsType;
 import com.fruit.web.model.*;
 import com.fruit.web.service.pay.WechatPayService;
 import com.fruit.web.util.Constant;
@@ -38,10 +39,8 @@ public class OrderController extends BaseController {
      */
     @Before({AuthInterceptor.class, Tx.class})
     public void createOrder() {
+        // TODO 使用getMode来获取参数
         System.out.println("------------购物车批量生成订单-----------------");
-//        boolean tx = Db.tx(new IAtom() {
-//            @Override
-//            public boolean run() throws SQLException {
         try {
             //获取前端传过来的商品规格id
             Integer[] standardIds = getParaValuesToInt("standardIds");
@@ -139,7 +138,7 @@ public class OrderController extends BaseController {
     /**
      * 直接创建订单(下单)
      */
-    @Before({AuthInterceptor.class,Tx.class})
+    @Before({AuthInterceptor.class, Tx.class})
     public void directCreateOrder() {
         System.out.println("------------单笔(直接)生成订单-----------------");
         //生成唯一有序id
@@ -199,11 +198,11 @@ public class OrderController extends BaseController {
             renderErrorText("后台异常!!!");
             e.printStackTrace();
         }
-
     }
 
     /**
      * 订单id生成规则
+     *
      * @return 新的订单id
      */
     private String getOrderId() {
@@ -234,24 +233,51 @@ public class OrderController extends BaseController {
     public void getBuyInfo() {
         Integer uid = getSessionAttr(Constant.SESSION_UID);
         List<BusinessInfo> businessInfoByUid = BusinessInfo.dao.getBusinessInfoByUid(uid);
-        if (businessInfoByUid == null || businessInfoByUid.size() < 1 || businessInfoByUid.get(0) == null){
+        if (businessInfoByUid == null || businessInfoByUid.size() < 1 || businessInfoByUid.get(0) == null) {
             renderErrorText("账户店铺未绑定");
             return;
         }
         BusinessInfo businessInfo = businessInfoByUid.get(0);
-        String buyAddress = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" +businessInfo.getAddressDetail();
+        String buyAddress = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" + businessInfo.getAddressDetail();
         String buyUserName = businessInfo.getBusinessContacts();
         String buyPhone = businessInfo.getPhone();
-        Integer deliveryType = businessInfo.getShipmentsType();
+        String deliveryType = BusinessShipmentsType.getShipmentsTypeName(businessInfo.getShipmentsType());
+        Integer deliveryIndex = businessInfo.getShipmentsType();
         String deliveryTime = "次日 8点 至 10点";
 
-        HashMap<String, String> buy_info = new HashMap<>(5);
-        buy_info.put("buy_address",buyAddress);
-        buy_info.put("buy_user_name",buyUserName);
-        buy_info.put("buy_phone",buyPhone);
-        buy_info.put("delivery_type",deliveryType.toString());
-        buy_info.put("delivery_time",deliveryTime);
-        renderJson(buy_info);
+        HashMap<String, String> buyInfo = new HashMap<>(5);
+        buyInfo.put("buy_address", buyAddress);
+        buyInfo.put("buy_user_name", buyUserName);
+        buyInfo.put("buy_phone", buyPhone);
+        buyInfo.put("delivery_type", deliveryType);
+        buyInfo.put("deliver_index", deliveryIndex.toString());
+        buyInfo.put("delivery_time", deliveryTime);
+
+        renderJson(buyInfo);
+    }
+
+    /**
+     * 设置个人信息和物流信息
+     */
+    public void setBuyInfo() {
+        String[] orderIds = getParaValues("orderIds");
+        String buyPhone = getPara("buy_phone");
+        String buyUserName = getPara("buy_user_name");
+        String deliveryTime = getPara("delivery_time");
+        String deliveryType = getPara("delivery_type");
+        String buyAddress = getPara("buy_address");
+
+        for (String orderId : orderIds) {
+            Order order = Order.dao.getOrder(orderId);
+            order.setBuyPhone(buyPhone);
+            order.setBuyUserName(buyUserName);
+            // TODO 发货时间
+            order.setDeliveryTime(new Date());
+            order.setDeliveryType(BusinessShipmentsType.getStatus(deliveryType));
+            order.setBuyAddress(buyAddress);
+            order.update();
+        }
+        renderNull();
     }
 
     /**
@@ -273,7 +299,6 @@ public class OrderController extends BaseController {
         Order order = Order.dao.getOrder(orderId);
         long money = order.getPayNeedMoney().multiply(new BigDecimal(100)).longValue();
         String url = new WechatPayService().wechatH5Pay(new WeChatPayConfig(orderId, money));
-        // TODO 前端设置接收H5支付重定向url
         renderText(url);
     }
 
@@ -282,54 +307,42 @@ public class OrderController extends BaseController {
      */
     public void getOrdersProducts() {
         try {
+
+            Integer uid = getSessionAttr(Constant.SESSION_UID);
+
             List<Map<String, Object>> productsInfo = new ArrayList<>();
             BigDecimal orderTotalPrice = new BigDecimal(0);
 
             String[] orderIds = getParaValues("orderIds");
 
-            StringBuilder sb = new StringBuilder(100);
-            for (String orderId : orderIds) {
-                sb.append(orderId +",");
-            }
-            System.out.println("获取的orderId"+sb);
-            System.out.println("------------------------------start--------------------------------------");
             // 遍历出每一个订单
             for (String orderId : orderIds) {
-                List<OrderDetail> orderDetails = OrderDetail.dao.getOrderDetails(orderId);
-                BigDecimal price = new BigDecimal(0.00);
-                System.out.println();
-                System.out.println("---------------------------------");
-                // 遍历出每一个商品
-                for (OrderDetail orderDetail : orderDetails) {
-                    BigDecimal sellPrice = orderDetail.getSellPrice();
-                    price = price.add(sellPrice.multiply(new BigDecimal(orderDetail.getNum())));
-                    System.out.println("orderId:"+orderId+" 的商品数量: "+orderDetail.getNum()+",单价: "+sellPrice);
+                Order order = Order.dao.getOrder(orderId);
+                if (order.getUId().equals(uid)) {
+                    List<OrderDetail> orderDetails = OrderDetail.dao.getOrderDetails(orderId);
+                    BigDecimal price = new BigDecimal(0.00);
+                    // 遍历出每一个商品
+                    for (OrderDetail orderDetail : orderDetails) {
+                        BigDecimal sellPrice = orderDetail.getSellPrice();
+                        price = price.add(sellPrice.multiply(new BigDecimal(orderDetail.getNum())));
+                    }
+                    orderTotalPrice = orderTotalPrice.add(price);
+
+                    HashMap<String, Object> productsMap = new HashMap<>(3);
+                    productsMap.put("products", orderDetails);
+                    productsMap.put("orderId", orderId);
+                    productsMap.put("totalPrice", price);
+                    productsInfo.add(productsMap);
                 }
-                System.out.println("---------------------------------");
-                System.out.println("orderId总价格: "+price);
-                orderTotalPrice = orderTotalPrice.add(price);
-                System.out.println("orderTotalPrice累加为: "+orderTotalPrice);
-
-                System.out.println("");
-
-                HashMap<String, Object> productsMap = new HashMap<>(3);
-                productsMap.put("products", orderDetails);
-                productsMap.put("orderId", orderId);
-                productsMap.put("totalPrice", price);
-                productsInfo.add(productsMap);
             }
-            System.out.println("------------------------------end--------------------------------------");
 
             HashMap<String, Object> responseMap = new HashMap<>(2);
             responseMap.put("productsInfo", productsInfo);
             responseMap.put("orderTotalPrice", orderTotalPrice);
 
-            System.out.println(orderIds+"商品总价为:" + orderTotalPrice);
-
             renderJson(responseMap);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
         }
     }
 
@@ -398,6 +411,24 @@ public class OrderController extends BaseController {
             System.out.println(mapping.getKey() + ":" + mapping.getValue());
         }
         return list;
+    }
+
+    /**
+     * 完成订单支付
+     */
+    public void endOrderPay() {
+        // 访问的用户 可能处于 完成状态或未完成状态 并点击了完成支付按钮 或者是 恶意的直接访问,所以必须要确认这支付的一步
+
+        // 支付平当台回调确认,且仅当支付状态被回调修改为已支付,才可以完成订单
+        String[] orderIds = getParaValues("orderIds");
+        for (String orderId : orderIds) {
+            Order order = Order.dao.getOrder(orderId);
+            if (order.getPaySuccess().equals(1) && order.getPayTotalMoney().equals(order.getPayNeedMoney())) {
+                renderNull();
+                return;
+            }
+        }
+        // TODO 添加和修改让前端明白是否支付成功的字段
     }
 
 }
