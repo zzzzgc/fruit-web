@@ -29,8 +29,7 @@ public class WecharContrller extends BaseController {
         BigDecimal money = Order.dao.getOrderPayNeedMoney(orderId);
         // 以分为单位
         long total = money.setScale(BigDecimal.ROUND_HALF_UP, 2).longValue();
-        WeChatPayConfig config = new WeChatPayConfig(orderId, total);
-        String url = new WechatPayService().wechatH5Pay(config);
+        String url = new WechatPayService().wechatH5Pay(orderId, total);
         //前端获取到该值以后需要重定向到该url
         renderText(url);
     }

@@ -33,13 +33,13 @@ public class OrderController extends BaseController {
      * 有序id计数
      */
     private static long COUNT = 10000L;
+    private static long PAY_COUNT = 10000L;
 
     /**
      * 购物车生成订单(下单)
      */
     @Before({AuthInterceptor.class, Tx.class})
     public void createOrder() {
-        // TODO 使用getMode来获取参数
         System.out.println("------------购物车批量生成订单-----------------");
         try {
             //获取前端传过来的商品规格id
@@ -208,8 +208,20 @@ public class OrderController extends BaseController {
     private String getOrderId() {
         String orderId;
         synchronized (OrderController.class) {
-            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT + RandomKit.random(1000, 9999);
-            COUNT++;
+            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + COUNT++ + RandomKit.random(1000, 9999);
+        }
+        return orderId;
+    }
+
+    /**
+     * 支付id生成规则
+     *
+     * @return 新的订单id
+     */
+    private String getPayId() {
+        String orderId;
+        synchronized (OrderController.class) {
+            orderId = DateTimeKit.formatDateToStyle("yyMMddhhmmss", new Date()) + "-" + PAY_COUNT++ + RandomKit.random(1000, 9999);
         }
         return orderId;
     }
@@ -238,7 +250,7 @@ public class OrderController extends BaseController {
             return;
         }
         BusinessInfo businessInfo = businessInfoByUid.get(0);
-        String buyAddress = businessInfo.getAddressProvince() + "省" + businessInfo.getAddressCity() + "区" + businessInfo.getAddressDetail();
+        String buyAddress = businessInfo.getAddressProvince() + businessInfo.getAddressCity() + businessInfo.getAddressDetail();
         String buyUserName = businessInfo.getBusinessContacts();
         String buyPhone = businessInfo.getPhone();
         String deliveryType = BusinessShipmentsType.getShipmentsTypeName(businessInfo.getShipmentsType());
@@ -298,7 +310,7 @@ public class OrderController extends BaseController {
         String orderId = getPara("orderId");
         Order order = Order.dao.getOrder(orderId);
         long money = order.getPayNeedMoney().multiply(new BigDecimal(100)).longValue();
-        String url = new WechatPayService().wechatH5Pay(new WeChatPayConfig(orderId, money));
+        String url = new WechatPayService().wechatH5Pay(orderId, money);
         renderText(url);
     }
 

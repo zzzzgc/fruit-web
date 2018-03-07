@@ -38,13 +38,21 @@ public class WechatPayService extends BaseWechatConfig {
     public static final String MD5 = "MD5";
     public static final String SHA256 = "HMAC-SHA256";
 
+//    /**
+//     *
+//     *
+//     * @param config
+//     * @return H5支付跳转URL, 只要让前端重定向到这里就可以了
+//     */
+
     /**
      * 微信H5支付
-     *
-     * @param config 微信支付配置实体对象
-     * @return H5支付跳转URL, 只要让前端重定向到这里就可以了
+     * @param orderId 微信支付订单
+     * @param money 微信支付金额
+     * @return String
      */
-    public String wechatH5Pay(WeChatPayConfig config) {
+    public String wechatH5Pay(String orderId, long money) {
+        WeChatPayConfig config = new WeChatPayConfig(orderId, money);
         config.setTradeType("MWEB");
         String param = config.getPayParam();
         String responseXmlStr = request(param, "JSAPI");
